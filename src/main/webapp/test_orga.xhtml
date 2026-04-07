@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/template.xhtml">
+    
+    <ui:define name="title">Test Organisateur</ui:define>
+    
+    <ui:define name="head">
+        <link rel="stylesheet" href="#{request.contextPath}/resources/css/test-orga.css"/>
+    </ui:define>
+    
+    <ui:define name="pageIcon">
+        <i class="pi pi-test"></i>
+    </ui:define>
+    
+    <ui:define name="pageTitle">
+        Test Page Organisateur
+    </ui:define>
+    
+    <ui:define name="content">
+        <div style="padding: 20px;">
+            <h3>Test Controller</h3>
+            <p>Message de test: #{userOrgaController.testMessage}</p>
+            
+            <h3>Test Data</h3>
+            <p>Nombre d'utilisateurs: #{userOrgaController.utilisateursFiltres.size()}</p>
+            
+            <h3>Test Table</h3>
+            <h:form>
+                <p:dataTable value="#{userOrgaController.utilisateursFiltres}" var="user" 
+                             emptyMessage="Aucun utilisateur">
+                    <p:column headerText="Nom">
+                        <h:outputText value="#{user.nom}" />
+                    </p:column>
+                    <p:column headerText="Prénom">
+                        <h:outputText value="#{user.prenom}" />
+                    </p:column>
+                    <p:column headerText="Email">
+                        <h:outputText value="#{user.email}" />
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

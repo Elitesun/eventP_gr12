@@ -1,0 +1,427 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Gestion des Employés - EventPlatform</ui:define>
+
+    <ui:define name="head">
+        <h:outputStylesheet library="css" name="employees-management.css" />
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <style>
+            .btn-icon {
+                margin: 0 3px;
+                padding: 8px 10px !important;
+                border-radius: 4px;
+                transition: all 0.3s ease;
+            }
+
+            .btn-info {
+                background-color: #0047FF !important;
+                color: white;
+            }
+
+            .btn-info:hover {
+                background-color: #0037D0 !important;
+                transform: scale(1.05);
+            }
+
+            .btn-warning {
+                background-color: #FF9800 !important;
+                color: white;
+            }
+
+            .btn-warning:hover {
+                background-color: #E68900 !important;
+                transform: scale(1.05);
+            }
+
+            .btn-success {
+                background-color: #28a745 !important;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background-color: #218838 !important;
+                transform: scale(1.05);
+            }
+
+            .btn-danger {
+                background-color: #DC3545 !important;
+                color: white;
+            }
+
+            .btn-danger:hover {
+                background-color: #c82333 !important;
+                transform: scale(1.05);
+            }
+
+            .status-badge {
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .status-actif {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .status-inactif {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            .employees-table .ui-datatable-header {
+                background-color: #f8f9fa !important;
+                border-bottom: 2px solid #0047FF !important;
+            }
+
+            .employees-table .ui-column-title {
+                font-weight: 600;
+                color: #333 !important;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="dashboard-content">
+            <!-- Header -->
+            <div class="page-header">
+                <div class="header-content">
+                    <h1>
+                        <i class="pi pi-users"></i>
+                        Gestion des Employés
+                    </h1>
+                    <p>Gérez les employés de votre organisation</p>
+                </div>
+                <h:form id="addButtonForm">
+                    <p:commandButton 
+                        value="Ajouter un employé" 
+                        icon="pi pi-plus"
+                        action="#{employeeController.initialiserFormulaireCreation}"
+                        oncomplete="PF('dlgAjouterEmploye').show();"
+                        styleClass="btn btn-primary"
+                        process="@this"
+                        update="formEmploye" />
+                </h:form>
+            </div>
+
+            <!-- Messages -->
+            <p:growl id="messages" showDetail="true" />
+
+            <!-- Tableau des employés -->
+            <h:form id="employeesForm">
+                <div class="employees-container">
+                    <p:dataTable 
+                        value="#{employeeController.employes}" 
+                        var="employe"
+                        emptyMessage="Aucun employé trouvé"
+                        styleClass="employees-table"
+                        id="employeesTable">
+
+                        <p:column headerText="Prénom">
+                            <h:outputText value="#{employe.prenom}" />
+                        </p:column>
+
+                        <p:column headerText="Nom">
+                            <h:outputText value="#{employe.nom}" />
+                        </p:column>
+
+                        <p:column headerText="Email">
+                            <h:outputText value="#{employe.email}" />
+                        </p:column>
+
+                        <p:column headerText="Téléphone">
+                            <h:outputText value="#{employe.telephone}" />
+                        </p:column>
+
+                        <p:column headerText="Statut" style="width: 140px; text-align: center;">
+                            <h:panelGroup>
+                                <h:panelGroup rendered="#{employe.actif}">
+                                    <span class="status-badge status-actif">
+                                        <i class="pi pi-check-circle"></i> Actif
+                                    </span>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{not employe.actif}">
+                                    <span class="status-badge status-inactif">
+                                        <i class="pi pi-times-circle"></i> Inactif
+                                    </span>
+                                </h:panelGroup>
+                            </h:panelGroup>
+                        </p:column>
+
+                        <p:column headerText="Actions" style="width: 240px; text-align: center;">
+                            <p:commandButton 
+                                icon="pi pi-eye" 
+                                title="Voir les informations"
+                                onclick="PF('dlgViewEmploye').show();"
+                                update="employeViewForm"
+                                action="#{employeeController.editerEmploye(employe)}"
+                                styleClass="btn-icon btn-info"
+                                process="@this" />
+
+                            <p:commandButton 
+                                icon="#{employe.actif ? 'pi pi-lock' : 'pi pi-lock-open'}" 
+                                title="#{employe.actif ? 'Désactiver' : 'Réactiver'}"
+                                action="#{employeeController.toggleActivationEmploye(employe)}"
+                                update="messages,employeesTable"
+                                styleClass="#{employe.actif ? 'btn-icon btn-warning' : 'btn-icon btn-success'}"
+                                process="@this"
+                                oncomplete="handleActivationChange()" />
+
+                            <p:commandButton 
+                                icon="pi pi-trash" 
+                                title="Supprimer"
+                                styleClass="btn-icon btn-danger"
+                                process="@this"
+                                oncomplete="handleDelete(xhr, status, args)"
+                                action="#{employeeController.supprimerEmploye(employe)}"
+                                update="messages,employeesTable" />
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </h:form>
+        </div>
+
+        <!-- Dialogue: Ajouter/Éditer employé -->
+        <p:dialog header="#{employeeController.modifMode ? 'Modifier l employé' : 'Ajouter un employé'}" 
+                   widgetVar="dlgAjouterEmploye" 
+                   modal="true" 
+                   resizable="false"
+                   width="600px"
+                   onHide="PF('dlgAjouterEmploye').hide()">
+
+            <h:form id="formEmploye">
+                <!-- Messages du formulaire -->
+                <p:messages id="formMessages" showDetail="true" />
+
+                <div class="form-content">
+                    <!-- Prenom et Nom -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="prenom" class="form-label">Prénom *</label>
+                            <p:inputText 
+                                id="prenom"
+                                value="#{employeeController.employeForm.prenom}"
+                                placeholder="Prénom"
+                                styleClass="form-input"
+                                required="true"
+                                requiredMessage="Le prénom est obligatoire" />
+                            <p:message for="prenom" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nom" class="form-label">Nom *</label>
+                            <p:inputText 
+                                id="nom"
+                                value="#{employeeController.employeForm.nom}"
+                                placeholder="Nom"
+                                styleClass="form-input"
+                                required="true"
+                                requiredMessage="Le nom est obligatoire" />
+                            <p:message for="nom" />
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email *</label>
+                        <p:inputText 
+                            id="email"
+                            value="#{employeeController.employeForm.email}"
+                            placeholder="email@example.com"
+                            styleClass="form-input"
+                            required="true"
+                            requiredMessage="L'email est obligatoire" />
+                        <p:message for="email" />
+                    </div>
+
+                    <!-- Téléphone -->
+                    <div class="form-group">
+                        <label for="telephone" class="form-label">Téléphone *</label>
+                        <p:inputText 
+                            id="telephone"
+                            value="#{employeeController.employeForm.telephone}"
+                            placeholder="+33 6 12 34 56 78"
+                            styleClass="form-input"
+                            required="true"
+                            requiredMessage="Le téléphone est obligatoire" />
+                        <p:message for="telephone" />
+                    </div>
+
+                    <!-- Mot de passe (uniquement en création) -->
+                    <h:panelGroup rendered="#{!employeeController.modifMode}">
+                        <div class="form-group">
+                            <label for="motDePasse" class="form-label">Mot de passe *</label>
+                            <p:password 
+                                id="motDePasse"
+                                value="#{employeeController.employeForm.motDePasse}"
+                                placeholder="Minimum 8 caractères"
+                                styleClass="form-input"
+                                feedback="true"
+                                weakLabel="Faible"
+                                goodLabel="Bon"
+                                strongLabel="Très bon"
+                                required="true"
+                                requiredMessage="Le mot de passe est obligatoire" />
+                            <p:message for="motDePasse" />
+                        </div>
+                    </h:panelGroup>
+
+                    <!-- Mot de passe (optionnel en édition) -->
+                    <h:panelGroup rendered="#{employeeController.modifMode}">
+                        <div class="form-group">
+                            <label for="motDePasseEdit" class="form-label">Nouveau mot de passe (optionnel)</label>
+                            <p:password 
+                                id="motDePasseEdit"
+                                value="#{employeeController.employeForm.motDePasse}"
+                                placeholder="Laissez vide pour conserver le mot de passe actuel"
+                                styleClass="form-input"
+                                feedback="true"
+                                weakLabel="Faible"
+                                goodLabel="Bon"
+                                strongLabel="Très bon" />
+                            <p:message for="motDePasseEdit" />
+                        </div>
+                    </h:panelGroup>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="form-actions">
+                    <p:commandButton 
+                        value="Enregistrer"
+                        action="#{employeeController.sauvegarderEmploye()}"
+                        update="messages,:employeesTable,formEmploye"
+                        styleClass="btn btn-primary"
+                        process="formEmploye" 
+                        oncomplete="handleSave(args)" />
+
+                    <p:commandButton 
+                        value="Annuler"
+                        onclick="PF('dlgAjouterEmploye').hide();"
+                        type="button"
+                        styleClass="btn btn-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- Dialogue: Voir détails employé -->
+        <p:dialog header="Détails de l'employé" 
+                   widgetVar="dlgViewEmploye" 
+                   modal="true" 
+                   resizable="false"
+                   width="500px">
+
+            <h:form id="employeViewForm">
+                <div class="view-content">
+                    <div class="view-row">
+                        <div class="view-label">Prénom:</div>
+                        <div class="view-value">#{employeeController.employeForm.prenom}</div>
+                    </div>
+
+                    <div class="view-row">
+                        <div class="view-label">Nom:</div>
+                        <div class="view-value">#{employeeController.employeForm.nom}</div>
+                    </div>
+
+                    <div class="view-row">
+                        <div class="view-label">Email:</div>
+                        <div class="view-value">#{employeeController.employeForm.email}</div>
+                    </div>
+
+                    <div class="view-row">
+                        <div class="view-label">Téléphone:</div>
+                        <div class="view-value">#{employeeController.employeForm.telephone}</div>
+                    </div>
+
+                    <div class="view-row">
+                        <div class="view-label">Statut:</div>
+                        <div class="view-value">
+                            <h:panelGroup rendered="#{employeeController.employeForm.actif}">
+                                <span class="status-badge status-actif">
+                                    <i class="pi pi-check-circle"></i> Actif
+                                </span>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{not employeeController.employeForm.actif}">
+                                <span class="status-badge status-inactif">
+                                    <i class="pi pi-times-circle"></i> Inactif
+                                </span>
+                            </h:panelGroup>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <p:commandButton 
+                        value="Fermer"
+                        onclick="PF('dlgViewEmploye').hide();"
+                        type="button"
+                        styleClass="btn btn-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <f:event listener="#{employeeController.chargerEmployes()}" type="preRenderView" />
+        
+        <script type="text/javascript">
+            //<![CDATA[
+            function handleActivationChange() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Statut modifié',
+                    text: 'Le statut de l\'employé a été modifié avec succès',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+            
+            function handleDelete(xhr, status, args) {
+                if (args && !args.validationFailed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Succès',
+                        text: 'Employé supprimé avec succès',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: 'Impossible de supprimer cet employé',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            }
+
+            function handleSave(args) {
+                if (!args.validationFailed) {
+                    // Attendre un peu pour que JSF finisse la mise à jour du tableau
+                    setTimeout(function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Succès',
+                            text: 'Employé enregistré avec succès',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            PF('dlgAjouterEmploye').hide();
+                        });
+                    }, 300);
+                }
+            }
+            //]]>
+        </script>
+    </ui:define>
+</ui:composition>

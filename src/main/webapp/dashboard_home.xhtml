@@ -1,0 +1,615 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/template.xhtml">
+    
+    <ui:define name="title">Dashboard - Vue d'ensemble</ui:define>
+    
+    <ui:define name="head">
+        <link rel="stylesheet" href="#{request.contextPath}/resources/css/dashboard-home.css"/>
+    </ui:define>
+    
+    <ui:define name="pageIcon">
+        <i class="pi pi-chart-line"></i>
+    </ui:define>
+    
+    <ui:define name="pageTitle">
+        Dashboard
+    </ui:define>
+    
+    <ui:define name="content">
+        <!-- Bootstrap 5 CDN -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <style>
+            /* EventPlatform Clean Design System */
+            
+            /* Variables CSS EventPlatform */
+            :root {
+                --eventplatform-blue: #0047FF;
+                --eventplatform-blue-dark: #0039CC;
+                --eventplatform-success: #2e7d32;
+                --eventplatform-warning: #f57c00;
+                --eventplatform-purple: #7b1fa2;
+                --eventplatform-light: #f8f9fa;
+                --eventplatform-border: #f0f0f0;
+                --eventplatform-text: #1a1a1a;
+                --eventplatform-text-muted: #6c757d;
+            }
+            
+            /* Harmonisation PrimeFaces + Bootstrap */
+            .ui-button {
+                border-radius: 8px !important;
+                font-weight: 500 !important;
+                transition: all 0.2s ease !important;
+            }
+            
+            .ui-button.ui-button-primary {
+                background: var(--eventplatform-blue) !important;
+                border-color: var(--eventplatform-blue) !important;
+            }
+            
+            .ui-button.ui-button-primary:hover {
+                background: var(--eventplatform-blue-dark) !important;
+                border-color: var(--eventplatform-blue-dark) !important;
+                transform: translateY(-1px);
+            }
+            
+            /* KPI Cards Style EventPlatform */
+            .kpi-card {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: 1px solid var(--eventplatform-border) !important;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .kpi-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .kpi-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 20px 40px rgba(0, 71, 255, 0.15) !important;
+                border-color: var(--eventplatform-blue) !important;
+            }
+            
+            .kpi-card:hover::before {
+                opacity: 1;
+            }
+            
+            .kpi-icon {
+                width: 56px;
+                height: 56px;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                color: white;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            }
+            
+            .kpi-icon.blue {
+                background: linear-gradient(135deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
+            }
+            
+            .kpi-icon.green {
+                background: linear-gradient(135deg, var(--eventplatform-success) 0%, #1b5e20 100%);
+            }
+            
+            .kpi-icon.orange {
+                background: linear-gradient(135deg, var(--eventplatform-warning) 0%, #e65100 100%);
+            }
+            
+            .kpi-icon.purple {
+                background: linear-gradient(135deg, var(--eventplatform-purple) 0%, #4a148c 100%);
+            }
+            
+            .kpi-badge {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            
+            .kpi-badge.positive {
+                background: rgba(46, 125, 50, 0.1);
+                color: var(--eventplatform-success);
+                border: 1px solid rgba(46, 125, 50, 0.2);
+            }
+            
+            /* Timeline Style Zenith */
+            .timeline-modern {
+                position: relative;
+                padding-left: 2rem;
+            }
+            
+            .timeline-modern::before {
+                content: '';
+                position: absolute;
+                left: 15px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: linear-gradient(180deg, var(--eventplatform-blue) 0%, transparent 100%);
+            }
+            
+            .timeline-item-modern {
+                position: relative;
+                margin-bottom: 2rem;
+            }
+            
+            .timeline-item-modern::before {
+                content: '';
+                position: absolute;
+                left: -2.25rem;
+                top: 0.5rem;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: var(--eventplatform-blue);
+                border: 3px solid white;
+                box-shadow: 0 0 0 3px rgba(0, 71, 255, 0.2);
+            }
+            
+            .timeline-content-modern {
+                background: white;
+                border: 1px solid var(--eventplatform-border);
+                border-radius: 12px;
+                padding: 1rem 1.25rem;
+                border-left: 4px solid var(--eventplatform-blue);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                transition: all 0.2s ease;
+            }
+            
+            .timeline-content-modern:hover {
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+                transform: translateX(4px);
+            }
+            
+            /* Graphique Style Pro */
+            .chart-container-pro {
+                background: white;
+                border-radius: 16px;
+                padding: 2rem;
+                border: 1px solid var(--eventplatform-border);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            }
+            
+            .simple-chart {
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-around;
+                height: 320px;
+                padding: 2rem;
+                background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+                border-radius: 12px;
+                position: relative;
+                border: 1px solid var(--eventplatform-border);
+            }
+            
+            .chart-bar-group {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+                flex: 1;
+            }
+            
+            .chart-bars {
+                display: flex;
+                gap: 8px;
+                align-items: flex-end;
+                height: 240px;
+            }
+            
+            .chart-bar {
+                width: 32px;
+                border-radius: 8px 8px 0 0;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                cursor: pointer;
+            }
+            
+            .chart-bar:hover {
+                opacity: 0.8;
+                transform: translateY(-8px) scale(1.05);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            }
+            
+            .chart-bar.orga {
+                background: linear-gradient(180deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
+            }
+            
+            .chart-bar.client {
+                background: linear-gradient(180deg, var(--eventplatform-success) 0%, #1b5e20 100%);
+            }
+            
+            .chart-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--eventplatform-text-muted);
+                text-align: center;
+            }
+            
+            .chart-legend {
+                display: flex;
+                gap: 2rem;
+                justify-content: center;
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid var(--eventplatform-border);
+            }
+            
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--eventplatform-text);
+            }
+            
+            .legend-color {
+                width: 20px;
+                height: 20px;
+                border-radius: 6px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            /* Table Pro Style */
+            .table-pro {
+                border: none !important;
+                border-radius: 16px !important;
+                overflow: hidden;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+            }
+            
+            .table-pro .ui-datatable-thead > tr > th {
+                background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%) !important;
+                color: var(--eventplatform-text-muted) !important;
+                font-weight: 700 !important;
+                font-size: 12px !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                padding: 1.25rem 1.5rem !important;
+                border: none !important;
+                border-bottom: 2px solid var(--eventplatform-border) !important;
+            }
+            
+            .table-pro .ui-datatable-data > tr > td {
+                padding: 1.25rem 1.5rem !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(240, 240, 240, 0.5) !important;
+                font-size: 14px !important;
+                vertical-align: middle !important;
+            }
+            
+            .table-pro .ui-datatable-data > tr:hover {
+                background: linear-gradient(90deg, rgba(0, 71, 255, 0.02) 0%, transparent 100%) !important;
+                transform: translateX(4px);
+                transition: all 0.2s ease;
+            }
+            
+            .table-pro .ui-datatable-data > tr:last-child > td {
+                border-bottom: none !important;
+            }
+            
+            /* User Avatar Pro */
+            .user-avatar-pro {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 16px;
+                box-shadow: 0 4px 12px rgba(0, 71, 255, 0.3);
+                border: 2px solid white;
+            }
+            
+            /* Status Badges Pro */
+            .status-badge {
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border: 1px solid;
+            }
+            
+            .status-badge.active {
+                background: rgba(46, 125, 50, 0.1);
+                color: var(--eventplatform-success);
+                border-color: rgba(46, 125, 50, 0.2);
+            }
+            
+            .status-badge.inactive {
+                background: rgba(108, 117, 125, 0.1);
+                color: var(--eventplatform-text-muted);
+                border-color: rgba(108, 117, 125, 0.2);
+            }
+            
+            /* Responsive Enhancements */
+            @media (max-width: 768px) {
+                .kpi-icon {
+                    width: 48px;
+                    height: 48px;
+                    font-size: 24px;
+                }
+                
+                .chart-container-pro {
+                    padding: 1rem;
+                }
+                
+                .simple-chart {
+                    height: 280px;
+                    padding: 1rem;
+                }
+            }
+        </style>
+        
+        <!-- Container Bootstrap avec structure responsive -->
+        <div class="container-fluid px-0">
+            
+            <!-- KPI Cards Row avec Bootstrap Grid -->
+            <div class="row g-4 mb-5">
+                <!-- Total Utilisateurs -->
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card kpi-card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="kpi-icon blue">
+                                    <i class="pi pi-users"></i>
+                                </div>
+                                <span class="badge kpi-badge positive rounded-pill">#{dashboardHomeBean.croissanceUtilisateurs}</span>
+                            </div>
+                            <div>
+                                <p class="text-muted mb-2 fw-medium" style="font-size: 13px;">Total Utilisateurs</p>
+                                <h2 class="fs-1 fw-bold text-dark mb-0">#{dashboardHomeBean.totalUtilisateurs}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Organisateurs Actifs -->
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card kpi-card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="kpi-icon green">
+                                    <i class="pi pi-briefcase"></i>
+                                </div>
+                                <span class="badge kpi-badge positive rounded-pill">#{dashboardHomeBean.croissanceOrganisateurs}</span>
+                            </div>
+                            <div>
+                                <p class="text-muted mb-2 fw-medium" style="font-size: 13px;">Organisateurs</p>
+                                <h2 class="fs-1 fw-bold text-dark mb-0">#{dashboardHomeBean.totalOrganisateurs}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Clients Inscrits -->
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card kpi-card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="kpi-icon orange">
+                                    <i class="pi pi-user"></i>
+                                </div>
+                                <span class="badge kpi-badge positive rounded-pill">#{dashboardHomeBean.croissanceClients}</span>
+                            </div>
+                            <div>
+                                <p class="text-muted mb-2 fw-medium" style="font-size: 13px;">Clients Inscrits</p>
+                                <h2 class="fs-1 fw-bold text-dark mb-0">#{dashboardHomeBean.totalClients}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Événements en Cours -->
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="card kpi-card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="kpi-icon purple">
+                                    <i class="pi pi-calendar"></i>
+                                </div>
+                                <span class="badge kpi-badge positive rounded-pill">#{dashboardHomeBean.croissanceEmployes}</span>
+                            </div>
+                            <div>
+                                <p class="text-muted mb-2 fw-medium" style="font-size: 13px;">Employés</p>
+                                <h2 class="fs-1 fw-bold text-dark mb-0">#{dashboardHomeBean.totalEmployes}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions Row -->
+            <div class="row g-4 mb-5">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, rgba(0, 71, 255, 0.05) 0%, rgba(0, 57, 204, 0.1) 100%);">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="kpi-icon blue me-3" style="width: 48px; height: 48px; font-size: 22px;">
+                                        <i class="pi pi-qrcode"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold">Gestion des Entrées</h5>
+                                        <p class="text-muted mb-0 small">Scanner les tickets pour valider l'entrée des participants.</p>
+                                    </div>
+                                </div>
+                                <p:link outcome="scan" styleClass="btn btn-primary px-4 py-2 font-weight-bold" style="border-radius: 10px;">
+                                    <i class="pi pi-camera me-2"></i>
+                                    Ouvrir le Scanner
+                                </p:link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Row: Chart + Timeline -->
+            <div class="row g-4 mb-5">
+                <!-- Graphique Croissance (8 colonnes) -->
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-transparent border-0 p-4 pb-0">
+                            <div class="d-flex align-items-center">
+                                <i class="pi pi-chart-line me-3" style="color: var(--eventplatform-blue); font-size: 20px;"></i>
+                                <h5 class="card-title mb-0 fw-bold">Croissance des Inscriptions</h5>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="chart-container-pro">
+                                <div class="simple-chart">
+                                    <ui:repeat value="#{dashboardHomeBean.donneesGraphique}" var="mois">
+                                        <div class="chart-bar-group">
+                                            <div class="chart-bars">
+                                                <div class="chart-bar orga" 
+                                                     style="height: 120px;"
+                                                     title="Organisateurs: #{mois.organisateurs}"
+                                                     data-bs-toggle="tooltip"></div>
+                                                <div class="chart-bar client" 
+                                                     style="height: 80px;"
+                                                     title="Clients: #{mois.clients}"
+                                                     data-bs-toggle="tooltip"></div>
+                                            </div>
+                                            <div class="chart-label">#{mois.mois}</div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+                                
+                                <div class="chart-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background: linear-gradient(135deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);"></div>
+                                        <span>Organisateurs</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background: linear-gradient(135deg, var(--eventplatform-success) 0%, #1b5e20 100%);"></div>
+                                        <span>Clients</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timeline Activités Récentes (4 colonnes) -->
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-header bg-transparent border-0 p-4 pb-0">
+                            <div class="d-flex align-items-center">
+                                <i class="pi pi-clock me-3" style="color: var(--eventplatform-blue); font-size: 20px;"></i>
+                                <h5 class="card-title mb-0 fw-bold">Activités Récentes</h5>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="timeline-modern">
+                                <ui:repeat value="#{dashboardHomeBean.activitesRecentes}" var="activite">
+                                    <div class="timeline-item-modern">
+                                        <div class="timeline-content-modern">
+                                            <h6 class="fw-bold mb-1" style="color: var(--eventplatform-text);">#{activite.titre}</h6>
+                                            <p class="text-muted mb-2 small">#{activite.description}</p>
+                                            <small class="text-muted">#{activite.date}</small>
+                                        </div>
+                                    </div>
+                                </ui:repeat>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Row: Recent Users Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-transparent border-0 p-4 pb-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="pi pi-user-plus me-3" style="color: var(--eventplatform-blue); font-size: 20px;"></i>
+                                    <h5 class="card-title mb-0 fw-bold">Derniers Utilisateurs Inscrits</h5>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive bg-white rounded-4 p-3">
+                                <p:dataTable 
+                                    value="#{dashboardHomeBean.derniersUtilisateurs}" 
+                                    var="user"
+                                    styleClass="table-pro"
+                                    emptyMessage="Aucun utilisateur récent">
+                                    
+                                    <p:column headerText="Utilisateur" style="width: 40%;">
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar-pro me-3">
+                                                #{user.nom.substring(0,1)}#{user.prenom.substring(0,1)}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">#{user.prenom} #{user.nom}</div>
+                                                <small class="text-muted">#{user.email}</small>
+                                            </div>
+                                        </div>
+                                    </p:column>
+                                    
+                                    <p:column headerText="Rôle" style="width: 20%;">
+                                        <span class="badge rounded-pill #{user.role == 'ORGANISATEUR' ? 'text-primary bg-primary' : 'text-success bg-success'} bg-opacity-10 border border-opacity-20">
+                                            #{user.role}
+                                        </span>
+                                    </p:column>
+                                    
+                                    <p:column headerText="Statut" style="width: 20%;">
+                                        <span class="status-badge active">
+                                            <i class="pi pi-check-circle me-1"></i>
+                                            Actif
+                                        </span>
+                                    </p:column>
+                                    
+                                    <p:column headerText="Inscription" style="width: 20%;">
+                                        <span class="text-muted small">
+                                            <i class="pi pi-calendar me-1"></i>
+                                            Aujourd'hui
+                                        </span>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bootstrap Tooltips Initialization -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize Bootstrap tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            });
+        </script>
+    </ui:define>
+</ui:composition>

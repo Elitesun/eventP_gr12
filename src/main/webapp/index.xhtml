@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/public_template.xhtml">
+    
+    <ui:define name="title">EventPlatform - Découvrez les meilleurs événements</ui:define>
+    
+    <ui:define name="head">
+        <link rel="stylesheet" href="#{request.contextPath}/resources/css/index.css"/>
+    </ui:define>
+    
+    <ui:define name="content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <h1 class="hero-title">Découvrez des événements extraordinaires</h1>
+                <p class="hero-subtitle">Trouvez et réservez les meilleurs événements près de chez vous</p>
+                
+                <!-- Barre de recherche -->
+                <div class="search-container">
+                    <h:form>
+                        <div class="search-form">
+                            <p:inputText 
+value="#{clientEvenementController.termeRecherche}"
+                                placeholder="Rechercher des événements, concerts, conférences..."
+                                styleClass="search-input"/>
+                            <p:commandButton 
+                                value="Rechercher"
+                                action="#{clientEvenementController.rechercherEvenements}"
+                                styleClass="search-btn"
+                                update="@form,evenementsGrid"
+                                process="@form"/>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section des événements -->
+        <section class="main-content">
+            <div class="container">
+                <h2 class="section-title">Événements populaires</h2>
+                
+                <!-- Grille d'événements avec Bootstrap -->
+                <div class="row g-4">
+                    <ui:repeat value="#{clientEvenementController.evenementsPublies}" var="event">
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card event-card">
+                                <div class="event-image">
+                                    <i class="pi pi-calendar"></i>
+                                    <div class="event-date-badge">
+                                        <h:outputText value="#{event.dateEvenement}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                        </h:outputText>
+                                    </div>
+                                </div>
+
+                                <div class="event-body">
+                                    <h5 class="event-title">#{event.titre}</h5>
+
+                                    <div class="event-location">
+                                        <i class="pi pi-map-marker"></i>
+                                        #{event.lieu}
+                                    </div>
+
+                                    <div class="event-price">#{event.prixTicket} €</div>
+
+                                    <p class="event-description">#{event.description}</p>
+
+                                    <p class="event-tickets">Tickets disponibles : #{event.ticketsDisponibles}</p>
+
+                                    <h:form>
+                                        <h:link outcome="events?faces-redirect=true" styleClass="btn-event">
+                                            Voir détails
+                                        </h:link>
+                                    </h:form>
+                                </div>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </div>
+                
+                <!-- Section d'appel à l'action -->
+                <div class="cta-section">
+                    <h3 class="cta-title">Vous organisez des événements ?</h3>
+                    <p class="cta-subtitle">
+                        Rejoignez EventPlatform et commencez à vendre vos billets dès aujourd'hui
+                    </p>
+                    <h:form>
+                        <h:link outcome="login" styleClass="btn-cta">
+                            <i class="pi pi-plus"></i>
+                            Créer un événement
+                        </h:link>
+                    </h:form>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>

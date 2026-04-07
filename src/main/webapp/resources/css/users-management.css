@@ -1,0 +1,276 @@
+/**
+ * Users Management Page Styles
+ */
+
+.users-management-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 30px;
+}
+
+.users-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.users-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.users-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.search-box {
+    padding: 10px 16px;
+    border: 1px solid #e8ecf1;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 250px;
+    transition: all 0.3s ease;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: #0047FF;
+    box-shadow: 0 0 0 3px rgba(0, 71, 255, 0.1);
+}
+
+.btn-add-user {
+    padding: 10px 20px;
+    background: #0047FF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-add-user:hover {
+    background: #0039CC;
+    transform: translateY(-2px);
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 71, 255, 0.1);
+}
+
+.users-table thead {
+    background: #f5f7fa;
+    border-bottom: 2px solid #e8ecf1;
+}
+
+.users-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.users-table tbody tr {
+    border-bottom: 1px solid #f5f7fa;
+    transition: background 0.3s ease;
+}
+
+.users-table tbody tr:hover {
+    background: #f9fbff;
+}
+
+.users-table td {
+    padding: 16px;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.user-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0047FF, #00d4ff);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-role {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.role-client {
+    background: #e3f2fd;
+    color: #0047FF;
+}
+
+.role-organizer {
+    background: #f3e5f5;
+    color: #9c27b0;
+}
+
+.role-employee {
+    background: #e8f5e9;
+    color: #4caf50;
+}
+
+.role-manager {
+    background: #fff3e0;
+    color: #ff9800;
+}
+
+.user-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #e8f5e9;
+    color: #4caf50;
+}
+
+.status-inactive {
+    background: #ffebee;
+    color: #f44336;
+}
+
+.status-badge {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.users-actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background: #e3f2fd;
+    color: #0047FF;
+}
+
+.btn-edit:hover {
+    background: #0047FF;
+    color: white;
+}
+
+.btn-delete {
+    background: #ffebee;
+    color: #f44336;
+}
+
+.btn-delete:hover {
+    background: #f44336;
+    color: white;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid #f5f7fa;
+}
+
+.pagination-item {
+    padding: 8px 12px;
+    border: 1px solid #e8ecf1;
+    border-radius: 6px;
+    background: white;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pagination-item:hover {
+    border-color: #0047FF;
+    color: #0047FF;
+}
+
+.pagination-item.active {
+    background: #0047FF;
+    color: white;
+    border-color: #0047FF;
+}
+
+.pagination-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .users-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .users-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .users-table {
+        font-size: 12px;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: 12px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}

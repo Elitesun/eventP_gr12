@@ -1,0 +1,6 @@
+set-log-levels javax.enterprise.system.core=INFO
+
+create-jdbc-connection-pool --restype=javax.sql.DataSource --datasourceclassname=org.postgresql.ds.PGSimpleDataSource --property user=${ENV=DB_USER}:password=${ENV=DB_PASSWORD}:DatabaseName=${ENV=DB_NAME}:ServerName=${ENV=DB_HOST}:portNumber=${ENV=DB_PORT} EventPool
+
+create-jdbc-resource --connectionpoolid EventPool jdbc/jpa
+ping-connection-pool EventPool

@@ -1,0 +1,135 @@
+/**
+ * Dashboard Client Styles
+ */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 71, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+}
+
+.stat-icon.blue {
+    background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%);
+}
+
+.stat-icon.green {
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.stat-icon.orange {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.ui-panel {
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 4px 16px rgba(0, 71, 255, 0.1) !important;
+    margin-bottom: 30px;
+    background: white !important;
+}
+
+.ui-panel .ui-panel-titlebar {
+    background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%) !important;
+    border: none !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 20px 25px !important;
+    color: white !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+}
+
+.ui-datatable {
+    border: none !important;
+}
+
+.ui-datatable .ui-datatable-header {
+    background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 15px 20px !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.ui-datatable-row-even {
+    background: white !important;
+}
+
+.ui-datatable-row-odd {
+    background: #f9f9f9 !important;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.action-btn.edit {
+    background: #0047FF;
+    color: white;
+}
+
+.action-btn.edit:hover {
+    background: #0039CC;
+}
+
+.action-btn.delete {
+    background: #f44336;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: #d32f2f;
+}

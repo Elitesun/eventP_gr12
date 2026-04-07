@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+template="/WEB-INF/template.xhtml">
+    <ui:define name="pageTitle">Événements</ui:define>
+    <ui:define name="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1 class="mb-4">
+                                <i class="fas fa-calendar-alt"></i>
+                                Événements Disponibles
+                            </h1>
+
+                            <!-- Messages -->
+                            <p:messages id="messages" showDetail="true" showSummary="false" closable="true"/>
+
+                            <!-- Barre de recherche -->
+                            <div class="row mb-4">
+                                <div class="col-md-8">
+                                    <h:form id="searchForm">
+                                        <div class="input-group">
+                                            <p:inputText id="searchInput"
+                                                       value="#{clientEvenementController.termeRecherche}"
+                                                       placeholder="Rechercher un événement..."
+                                                       styleClass="form-control"/>
+                                            <div class="input-group-append">
+                                                <p:commandButton value="Rechercher"
+                                                               icon="fas fa-search"
+                                                               action="#{clientEvenementController.rechercherEvenements}"
+                                                               update="evenementsGrid,messages"
+                                                               styleClass="btn btn-outline-primary"/>
+                                            </div>
+                                        </div>
+                                    </h:form>
+                                </div>
+                                <div class="col-md-4">
+                                    <h:form id="viewAllForm">
+                                        <p:commandButton value="Voir tous les événements"
+                                                       icon="fas fa-list"
+                                                       action="#{clientEvenementController.chargerEvenementsPublies}"
+                                                       update="evenementsGrid,messages"
+                                                       styleClass="btn btn-secondary float-right"/>
+                                    </h:form>
+                                </div>
+                            </div>
+
+                            <!-- Grille des événements -->
+                            <div id="evenementsGrid">
+                                <div class="row">
+                                    <ui:repeat value="#{clientEvenementController.evenementsPublies}" var="evenement">
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-header">
+                                                    <h5 class="card-title mb-0">
+                                                        <h:outputText value="#{evenement.titre}"/>
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="card-text">
+                                                        <strong>Date:</strong>
+                                                        <h:outputText value="#{evenement.dateEvenement}">
+                                                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                                                        </h:outputText>
+                                                    </p>
+                                                    <p class="card-text">
+                                                        <strong>Lieu:</strong> <h:outputText value="#{evenement.lieu}"/>
+                                                    </p>
+                                                    <p class="card-text">
+                                                        <strong>Prix:</strong> <h:outputText value="#{evenement.prixTicket} €"/>
+                                                    </p>
+                                                    <p class="card-text">
+                                                        <strong>Tickets disponibles:</strong>
+                                                        <span class="badge #{clientEvenementController.ticketsDisponibles(evenement) ? 'badge-success' : 'badge-danger'}">
+                                                            #{evenement.ticketsDisponibles}
+                                                        </span>
+                                                    </p>
+                                                    <p class="card-text text-truncate">
+                                                        <h:outputText value="#{evenement.description}" escape="false"/>
+                                                    </p>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <h:form id="eventForm#{evenement.id}">
+                                                        <p:commandButton value="Acheter des tickets"
+                                                                       icon="fas fa-shopping-cart"
+                                                                       action="#{clientEvenementController.selectionnerEvenement(evenement)}"
+                                                                       update="achatDialog,messages"
+                                                                       styleClass="btn btn-primary btn-block"
+                                                                       disabled="#{!clientEvenementController.ticketsDisponibles(evenement)}"
+                                                                       oncomplete="PF('achatDialog').show()"/>
+                                                    </h:form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+
+                                <!-- Message si aucun événement -->
+                                <h:panelGroup layout="block" styleClass="text-center mt-4" rendered="#{empty clientEvenementController.evenementsPublies}">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        Aucun événement trouvé.
+                                    </div>
+                                </h:panelGroup>
+                            </div>
+
+                            <!-- Dialog d'achat de tickets -->
+                            <p:dialog id="achatDialog"
+                                    header="Acheter des tickets"
+                                    widgetVar="achatDialog"
+                                    modal="true"
+                                    closable="true"
+                                    draggable="false"
+                                    appendTo="@(body)">
+
+                                <h:form id="achatForm">
+                                    <h:panelGroup layout="block" styleClass="form-group" rendered="#{not empty clientEvenementController.evenementSelectionne}">
+                                        <h4>
+                                            <h:outputText value="#{clientEvenementController.evenementSelectionne.titre}"/>
+                                        </h4>
+                                        <p>
+                                            <strong>Date:</strong>
+                                            <h:outputText value="#{clientEvenementController.evenementSelectionne.dateEvenement}">
+                                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                                            </h:outputText>
+                                        </p>
+                                        <p>
+                                            <strong>Prix par ticket:</strong>
+                                            <h:outputText value="#{clientEvenementController.evenementSelectionne.prixTicket} €"/>
+                                        </p>
+                                        <p>
+                                            <strong>Tickets disponibles:</strong>
+                                            <h:outputText value="#{clientEvenementController.evenementSelectionne.ticketsDisponibles}"/>
+                                        </p>
+                                    </h:panelGroup>
+
+                                    <div class="form-group">
+                                        <label for="nombreTickets">Nombre de tickets à acheter *</label>
+                                        <p:inputNumber id="nombreTickets"
+                                                     value="#{clientEvenementController.nombreTicketsAcheter}"
+                                                     required="true"
+                                                     minValue="1"
+                                                     maxValue="#{not empty clientEvenementController.evenementSelectionne ? clientEvenementController.evenementSelectionne.ticketsDisponibles : 999}"
+                                                     styleClass="form-control"/>
+                                    </div>
+
+                                    <div class="alert alert-info">
+                                        <strong>Total à payer:</strong>
+                                        <h:outputText value="#{clientEvenementController.prixTotal} €"/>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <p:commandButton value="Confirmer l'achat"
+                                                       icon="fas fa-credit-card"
+                                                       action="#{clientEvenementController.acheterTickets}"
+                                                       update="@form,messages,evenementsGrid"
+                                                       oncomplete="#{clientEvenementController.achatReussi ? 'PF(\'achatDialog\').hide();' : ''}"
+                                                       styleClass="btn btn-success"/>
+                                        <p:commandButton value="Annuler"
+                                                       icon="fas fa-times"
+                                                       onclick="PF('achatDialog').hide()"
+                                                       styleClass="btn btn-secondary ml-2"/>
+                                    </div>
+                                </h:form>
+                            </p:dialog>
+                        </div>
+                    </div>
+                </div>
+            </ui:define>
+</ui:composition>

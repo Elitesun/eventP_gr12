@@ -1,0 +1,304 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/public_template.xhtml">
+
+    <ui:define name="title">Vérification de Ticket - EventPlatform</ui:define>
+
+    <ui:define name="head">
+        <script src="https://unpkg.com/html5-qrcode"></script>
+        <style>
+            .scan-container {
+                max-width: 600px;
+                margin: 40px auto;
+                padding: 0 20px;
+            }
+            #reader {
+                width: 100%;
+                border-radius: 15px;
+                overflow: hidden;
+                border: 2px solid #0047FF;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+                background: #000;
+            }
+            #reader button {
+                background: #0047FF !important;
+                color: white !important;
+                border: none !important;
+                padding: 10px 20px !important;
+                border-radius: 8px !important;
+                margin: 10px !important;
+            }
+            .ticket-card {
+                background: white;
+                border-radius: 20px;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+                overflow: hidden;
+                border: 1px solid #eee;
+                margin-top: 20px;
+            }
+            .ticket-header-blue {
+                background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }
+            .ticket-status-badge {
+                display: inline-block;
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 700;
+                margin-top: 10px;
+            }
+            .status-bg-vendu { background: #e3f2fd; color: #0d47a1; }
+            .status-bg-utilise { background: #e8f5e9; color: #1b5e20; }
+            .status-bg-annule { background: #ffebee; color: #b71c1c; }
+            .status-bg-disponible { background: #f5f5f5; color: #616161; }
+            .ticket-body-section { padding: 30px; }
+            .info-row-item {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                border-bottom: 1px dashed #eee;
+                padding-bottom: 10px;
+            }
+            .info-label-text { color: #666; font-size: 14px; font-weight: 500; }
+            .info-value-text { color: #1a1a1a; font-weight: 700; text-align: right; }
+            .validation-section {
+                padding: 30px;
+                background: #f8f9fa;
+                border-top: 1px solid #eee;
+                text-align: center;
+            }
+            .btn-validate-green {
+                background: #28a745 !important;
+                border: none !important;
+                padding: 15px 40px !important;
+                font-size: 18px !important;
+                font-weight: 700 !important;
+                border-radius: 12px !important;
+                width: 100%;
+                color: white !important;
+                cursor: pointer;
+            }
+            .search-box-area {
+                background: white;
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+                margin-bottom: 20px;
+            }
+            .debug-box {
+                background: #fffde7;
+                border: 2px solid #f9a825;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                font-size: 12px;
+                font-family: monospace;
+                color: #333;
+                word-break: break-all;
+            }
+            .alert-not-found {
+                background: #fff3cd;
+                border: 1px solid #ffc107;
+                color: #856404;
+                padding: 15px 20px;
+                border-radius: 10px;
+                text-align: center;
+                margin-top: 15px;
+            }
+            .alert-error {
+                background: #f8d7da;
+                border: 1px solid #f5c6cb;
+                color: #721c24;
+                padding: 15px 20px;
+                border-radius: 10px;
+                text-align: center;
+                margin-top: 15px;
+            }
+        </style>
+
+        <script>
+            //<![CDATA[
+            var html5QrCode;
+
+            function onScanSuccess(decodedText) {
+                var code = decodedText;
+                try {
+                    var parsed = new URL(decodedText);
+                    var codeParam = parsed.searchParams.get('code');
+                    if (codeParam) code = codeParam;
+                } catch (e) {}
+
+                var input = document.getElementById('scanForm:inputCodeQr');
+                if (input) {
+                    input.value = code;
+                    document.getElementById('scanForm:btnVerifier').click();
+                }
+
+                if (html5QrCode) {
+                    html5QrCode.stop().then(function() {
+                        var btn = document.getElementById('restartScanBtn');
+                        if (btn) btn.style.display = 'block';
+                    }).catch(function() {});
+                }
+            }
+
+            function startScanner() {
+                var btn = document.getElementById('restartScanBtn');
+                if (btn) btn.style.display = 'none';
+                var readerEl = document.getElementById('reader');
+                if (!readerEl) return;
+
+                html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess
+                ).catch(function(err) {
+                    readerEl.innerHTML = '<p style="color:white;padding:20px;text-align:center;">Camera non disponible.<br/>Verifiez les permissions HTTPS.</p>';
+                });
+            }
+
+            window.addEventListener("load", function() {
+                var urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.has('code')) {
+                    startScanner();
+                }
+            });
+            //]]>
+        </script>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="scan-container">
+
+            <h:form id="scanForm">
+
+                <!-- Zone debug (visible pour diagnostiquer) -->
+                <div class="debug-box">
+                    <strong>DEBUG:</strong> #{scanBean.debugInfo}
+                    <br/>
+                    <strong>Code QR:</strong> [#{scanBean.codeQr}]
+                    <br/>
+                    <strong>Ticket trouvé:</strong> #{scanBean.ticket != null ? 'OUI' : 'NON'}
+                    <br/>
+                    <strong>Erreur:</strong> #{scanBean.messageErreur}
+                </div>
+
+                <!-- Zone Caméra (visible seulement si aucun code n'est dans l'URL) -->
+                <h:panelGroup rendered="#{empty scanBean.codeQr}">
+                    <div id="reader"></div>
+                    <div id="restartScanBtn" style="display:none; text-align:center; margin-bottom: 20px;">
+                        <button type="button" onclick="startScanner()"
+                                style="background:white;border:2px solid #0047FF;color:#0047FF;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;">
+                            Relancer le Scan
+                        </button>
+                    </div>
+                </h:panelGroup>
+
+                <!-- Saisie manuelle -->
+                <div class="search-box-area">
+                    <h5 style="text-align:center; margin-bottom:15px;">Vérifier un ticket</h5>
+                    <div style="display:flex; gap:10px;">
+                        <p:inputText id="inputCodeQr"
+                                     value="#{scanBean.codeQr}"
+                                     placeholder="Code du ticket..."
+                                     style="flex:1; padding:12px; border:1px solid #ddd; border-radius:8px;" />
+                        <p:commandButton id="btnVerifier"
+                                         value="Vérifier"
+                                         action="#{scanBean.chargerTicket()}"
+                                         update="@form"
+                                         process="@form"
+                                         style="background:#0047FF;color:white;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:600;" />
+                    </div>
+                </div>
+
+                <!-- Message d'erreur -->
+                <h:panelGroup rendered="#{not empty scanBean.messageErreur}">
+                    <div class="alert-error">
+                        #{scanBean.messageErreur}
+                    </div>
+                </h:panelGroup>
+
+                <!-- TICKET TROUVÉ : affichage des détails -->
+                <h:panelGroup rendered="#{scanBean.ticket != null}">
+                    <div class="ticket-card">
+                        <div class="ticket-header-blue">
+                            <div style="font-size:3rem;">&#127915;</div>
+                            <h2 style="margin:10px 0 0;">
+                                <h:outputText value="#{scanBean.ticket.evenement.titre}" rendered="#{scanBean.ticket.evenement != null}" />
+                            </h2>
+                            <span class="ticket-status-badge status-bg-#{scanBean.ticket.statut.toString().toLowerCase()}">
+                                #{scanBean.ticket.statut}
+                            </span>
+                        </div>
+
+                        <div class="ticket-body-section">
+                            <!-- Détenteur -->
+                            <h:panelGroup rendered="#{scanBean.ticket.client != null}">
+                                <div class="info-row-item">
+                                    <span class="info-label-text">Détenteur</span>
+                                    <span class="info-value-text">
+                                        #{scanBean.ticket.client.prenom} #{scanBean.ticket.client.nom}
+                                    </span>
+                                </div>
+                            </h:panelGroup>
+
+                            <!-- Date -->
+                            <h:panelGroup rendered="#{scanBean.ticket.evenement != null}">
+                                <div class="info-row-item">
+                                    <span class="info-label-text">Date</span>
+                                    <span class="info-value-text">
+                                        <h:outputText value="#{scanBean.ticket.evenement.dateEvenement}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                                        </h:outputText>
+                                    </span>
+                                </div>
+                            </h:panelGroup>
+
+                            <!-- Lieu -->
+                            <h:panelGroup rendered="#{scanBean.ticket.evenement != null}">
+                                <div class="info-row-item">
+                                    <span class="info-label-text">Lieu</span>
+                                    <span class="info-value-text">#{scanBean.ticket.evenement.lieu}</span>
+                                </div>
+                            </h:panelGroup>
+                        </div>
+
+                        <!-- Validation (personnel uniquement) -->
+                        <h:panelGroup rendered="#{scanBean.peutValider()}">
+                            <div class="validation-section">
+                                <p:commandButton value="Valider l'entrée"
+                                               action="#{scanBean.validerTicket()}"
+                                               update="@form"
+                                               process="@form"
+                                               styleClass="btn-validate-green" />
+                                <p style="color:#666; font-size:13px; margin-top:10px;">
+                                    Une fois validé, ce ticket ne pourra plus être réutilisé.
+                                </p>
+                            </div>
+                        </h:panelGroup>
+
+                        <!-- Ticket déjà utilisé -->
+                        <h:panelGroup rendered="#{scanBean.ticket.statut.toString() eq 'UTILISE'}">
+                            <div class="validation-section">
+                                <p style="color:#c0392b; font-weight:700; font-size:18px;">
+                                    CE TICKET A DÉJÀ ÉTÉ UTILISÉ.
+                                </p>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </h:panelGroup>
+
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>

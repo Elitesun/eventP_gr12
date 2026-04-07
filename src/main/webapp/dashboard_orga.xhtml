@@ -1,0 +1,217 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/template.xhtml">
+    
+    <ui:define name="title">Dashboard Organisateur</ui:define>
+    
+    <ui:define name="head">
+        <link rel="stylesheet" href="#{request.contextPath}/resources/css/dashboard-orga.css"/>
+    </ui:define>
+    
+    <ui:define name="pageIcon">
+        <i class="pi pi-calendar"></i>
+    </ui:define>
+    
+    <ui:define name="pageTitle">
+        Dashboard Organisateur
+    </ui:define>
+    
+    <ui:define name="content">
+        <style>
+            .welcome-card {
+                background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%);
+                padding: 40px;
+                border-radius: 12px;
+                color: white;
+                margin-bottom: 30px;
+                box-shadow: 0 8px 24px rgba(0, 71, 255, 0.3);
+            }
+            
+            .welcome-title {
+                font-size: 32px;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+            
+            .welcome-subtitle {
+                font-size: 18px;
+                opacity: 0.9;
+            }
+            
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .stat-card {
+                background: white;
+                padding: 25px;
+                border-radius: 12px;
+                box-shadow: 0 4px 16px rgba(0, 71, 255, 0.1);
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                transition: transform 0.3s ease;
+            }
+            
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+            
+            .stat-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                color: white;
+            }
+            
+            .stat-icon.blue {
+                background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%);
+            }
+            
+            .stat-icon.green {
+                background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            }
+            
+            .stat-icon.purple {
+                background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+            }
+            
+            .stat-icon.orange {
+                background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            }
+            
+            .stat-content {
+                flex: 1;
+            }
+            
+            .stat-label {
+                font-size: 14px;
+                color: #6c757d;
+                margin-bottom: 5px;
+            }
+            
+            .stat-value {
+                font-size: 28px;
+                font-weight: 700;
+                color: #2c3e50;
+            }
+            
+            .quick-actions {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-top: 30px;
+            }
+            
+            .action-btn {
+                background: white !important;
+                border: 2px solid #0047FF !important;
+                color: #0047FF !important;
+                padding: 20px !important;
+                border-radius: 12px !important;
+                font-size: 16px !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 10px !important;
+            }
+            
+            .action-btn:hover {
+                background: #0047FF !important;
+                color: white !important;
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(0, 71, 255, 0.3) !important;
+            }
+            
+            .action-btn i {
+                font-size: 32px;
+            }
+        </style>
+        
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <div class="welcome-title">
+                Bienvenue, #{authController.utilisateurConnecte.prenom} !
+            </div>
+            <div class="welcome-subtitle">
+                Gérez vos événements et votre équipe depuis votre tableau de bord
+            </div>
+        </div>
+        
+        <!-- Statistiques -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="pi pi-calendar"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Mes Événements</div>
+                    <div class="stat-value">#{dashboardOrgaBean.mesEvenements}</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="pi pi-ticket"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Billets Vendus</div>
+                    <div class="stat-value">#{dashboardOrgaBean.billetsVendus}</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="pi pi-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Mes Employés</div>
+                    <div class="stat-value">#{dashboardOrgaBean.mesEmployes}</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="pi pi-money-bill"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Chiffre d'Affaires</div>
+                    <div class="stat-value">#{dashboardOrgaBean.chiffreAffaires}</div>
+                </div>
+            </div>
+        </div>
+        <!-- Actions Rapides -->
+        <h3 class="mb-3 fw-bold">Actions Rapides</h3>
+        <div class="quick-actions">
+            <h:link outcome="scan" styleClass="action-btn">
+                <i class="pi pi-qrcode"></i>
+                Scanner un Ticket
+            </h:link>
+            
+            <h:link outcome="admin_events" styleClass="action-btn">
+                <f:param name="create" value="true" />
+                <i class="pi pi-plus-circle"></i>
+                Créer un Événement
+            </h:link>
+            
+            <h:link outcome="manage_employees" styleClass="action-btn">
+                <i class="pi pi-users"></i>
+                Gérer mon Équipe
+            </h:link>
+        </div>
+    </ui:define>
+</ui:composition>

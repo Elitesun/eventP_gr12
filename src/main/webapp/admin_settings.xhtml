@@ -1,0 +1,466 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/template.xhtml">
+    
+    <ui:define name="title">Mon Profil - Administrateur</ui:define>
+    
+    <ui:define name="head">
+        <style>
+            .profile-container {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 0;
+            }
+
+            .profile-header {
+                background: white;
+                border-radius: 12px;
+                padding: 40px 30px;
+                margin-bottom: 30px;
+                box-shadow: 0 2px 8px rgba(0, 71, 255, 0.1);
+                border: 1px solid #e5e7eb;
+                text-align: center;
+            }
+
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 40px;
+                margin: 0 auto 20px auto;
+                box-shadow: 0 4px 12px rgba(0, 71, 255, 0.3);
+            }
+
+            .profile-name {
+                font-size: 28px;
+                font-weight: 700;
+                color: #1a1a1a;
+                margin: 15px 0 5px 0;
+            }
+
+            .profile-role {
+                font-size: 14px;
+                color: #6c757d;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .profile-section {
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                margin-bottom: 25px;
+                box-shadow: 0 2px 8px rgba(0, 71, 255, 0.1);
+                border: 1px solid #e5e7eb;
+            }
+
+            .section-title {
+                font-size: 18px;
+                font-weight: 700;
+                color: #1a1a1a;
+                margin: 0 0 25px 0;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #f1f3f5;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .section-title i {
+                color: #0047FF;
+                font-size: 20px;
+            }
+
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 25px;
+                margin-bottom: 25px;
+            }
+
+            .info-item {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .info-label {
+                font-size: 12px;
+                font-weight: 600;
+                color: #6c757d;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 8px;
+            }
+
+            .info-value {
+                font-size: 16px;
+                color: #1a1a1a;
+                font-weight: 500;
+            }
+
+            .action-buttons {
+                display: flex;
+                gap: 12px;
+                margin-top: 25px;
+                padding-top: 20px;
+                border-top: 1px solid #f1f3f5;
+            }
+
+            .btn {
+                padding: 10px 24px !important;
+                border-radius: 8px !important;
+                font-weight: 600 !important;
+                font-size: 14px !important;
+                border: none !important;
+                cursor: pointer !important;
+                transition: all 0.3s ease !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+
+            .btn-primary {
+                background: #0047FF !important;
+                color: white !important;
+            }
+
+            .btn-primary:hover {
+                background: #0039CC !important;
+                box-shadow: 0 4px 12px rgba(0, 71, 255, 0.3) !important;
+            }
+
+            .btn-secondary {
+                background: #f1f3f5 !important;
+                color: #1a1a1a !important;
+            }
+
+            .btn-secondary:hover {
+                background: #e9ecef !important;
+            }
+
+            /* Modal Form */
+            .modal-form .ui-dialog {
+                border-radius: 12px !important;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+            }
+
+            .modal-form .ui-dialog-titlebar {
+                background: white !important;
+                border: none !important;
+                border-bottom: 1px solid #f1f3f5 !important;
+                padding: 20px 24px !important;
+            }
+
+            .modal-form .ui-dialog-title {
+                font-size: 18px !important;
+                font-weight: 700 !important;
+                color: #1a1a1a !important;
+            }
+
+            .form-group {
+                margin-bottom: 10px;
+            }
+
+            .form-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #1a1a1a;
+                margin-bottom: 8px;
+                display: block;
+            }
+
+            .form-input, .ui-inputtext, .ui-password {
+                width: 100% !important;
+                padding: 12px 16px !important;
+                border: 2px solid #e1e8ed !important;
+                border-radius: 8px !important;
+                font-size: 14px !important;
+                transition: all 0.3s ease !important;
+            }
+
+            .form-input:focus, .ui-inputtext:focus, .ui-password:focus {
+                border-color: #0047FF !important;
+                box-shadow: 0 0 0 3px rgba(0, 71, 255, 0.1) !important;
+                outline: none !important;
+            }
+
+            .form-actions {
+                display: flex;
+                gap: 12px;
+                justify-content: flex-end;
+                padding: 20px 0;
+                border-top: 1px solid #f1f3f5;
+            }
+
+            .growl-container {
+                z-index: 9999 !important;
+            }
+        </style>
+    </ui:define>
+    
+    <ui:define name="content">
+        <div class="profile-container">
+            <!-- Profil Header -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    #{adminProfileController.prenom.substring(0,1)}#{adminProfileController.nom.substring(0,1)}
+                </div>
+                <h1 class="profile-name">#{adminProfileController.prenom} #{adminProfileController.nom}</h1>
+                <p class="profile-role">Administrateur Système</p>
+            </div>
+
+            <h:form id="mainForm">
+                <!-- Section Informations Personnelles -->
+                <div class="profile-section">
+                    <h2 class="section-title">
+                        <i class="pi pi-user"></i>
+                        Informations Personnelles
+                    </h2>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Prénom</span>
+                            <span class="info-value">#{adminProfileController.prenom}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nom</span>
+                            <span class="info-value">#{adminProfileController.nom}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">#{adminProfileController.email}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Téléphone</span>
+                            <span class="info-value">#{adminProfileController.telephone}</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <p:commandButton 
+                            value="✏️ Modifier" 
+                            action="#{adminProfileController.activateEditMode()}" 
+                            update=":editProfileForm"
+                            oncomplete="PF('dlgEditProfile').show()"
+                            styleClass="btn btn-primary"
+                            process="@this"/>
+                    </div>
+                </div>
+
+                <!-- Section Sécurité -->
+                <div class="profile-section">
+                    <h2 class="section-title">
+                        <i class="pi pi-lock"></i>
+                        Sécurité
+                    </h2>
+
+                    <p style="color: #6c757d; margin-bottom: 25px; margin-top: 0;">
+                        Pour sécuriser votre compte administrateur, vous pouvez changer votre mot de passe régulièrement.
+                    </p>
+
+                    <div class="action-buttons">
+                        <p:commandButton 
+                            value="🔑 Changer le mot de passe" 
+                            action="#{adminProfileController.activateChangePasswordMode()}" 
+                            update=":changePasswordForm"
+                            oncomplete="PF('dlgChangePassword').show()"
+                            styleClass="btn btn-primary"
+                            process="@this"/>
+                    </div>
+                </div>
+            </h:form>
+        </div>
+
+        <!-- Modal: Modifier Profil -->
+        <p:dialog header="Modifier mon profil" widgetVar="dlgEditProfile" modal="true" responsive="true" 
+                  width="700" closeOnEscape="true" styleClass="modal-form">
+            <h:form id="editProfileForm">
+                <p:messages id="editMessages" showDetail="true" />
+
+                <div style="padding: 12px; max-height: 40vh; overflow-y: auto;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label class="form-label">Prénom *</label>
+                            <p:inputText 
+                                id="editPrenom"
+                                value="#{adminProfileController.prenom}"
+                                placeholder="Votre prénom"
+                                styleClass="form-input"
+                                required="true"
+                                requiredMessage="Le prénom est obligatoire"/>
+                            <p:message for="editPrenom"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Nom *</label>
+                            <p:inputText 
+                                id="editNom"
+                                value="#{adminProfileController.nom}"
+                                placeholder="Votre nom"
+                                styleClass="form-input"
+                                required="true"
+                                requiredMessage="Le nom est obligatoire"/>
+                            <p:message for="editNom"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <p:inputText 
+                                id="editEmail"
+                                value="#{adminProfileController.email}"
+                                placeholder="votre.email@example.com"
+                                styleClass="form-input"
+                                type="email"
+                                required="true"
+                                requiredMessage="L'email est obligatoire"/>
+                            <p:message for="editEmail"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Téléphone *</label>
+                            <p:inputText 
+                                id="editTelephone"
+                                value="#{adminProfileController.telephone}"
+                                placeholder="Votre numéro de téléphone"
+                                styleClass="form-input"
+                                required="true"
+                                requiredMessage="Le téléphone est obligatoire"/>
+                            <p:message for="editTelephone"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="padding: 12px 12px 8px 12px;">
+                    <p:commandButton 
+                        value="Enregistrer" 
+                        action="#{adminProfileController.saveProfile()}" 
+                        update=":mainForm,editMessages"
+                        oncomplete="handleSave(args)"
+                        styleClass="btn btn-primary"
+                        process="editProfileForm"/>
+                    
+                    <p:commandButton 
+                        value="Annuler" 
+                        onclick="PF('dlgEditProfile').hide();"
+                        type="button"
+                        styleClass="btn btn-secondary"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- Modal: Changer Mot de Passe -->
+        <p:dialog header="Changer mon mot de passe" widgetVar="dlgChangePassword" modal="true" responsive="true" 
+                  width="600" closeOnEscape="true" styleClass="modal-form">
+            <h:form id="changePasswordForm">
+                <p:messages id="pwdMessages" showDetail="true" />
+
+                <div style="padding: 12px;">
+                    <div class="form-group">
+                        <label class="form-label">Ancien mot de passe *</label>
+                        <p:password 
+                            id="ancienMdp"
+                            value="#{adminProfileController.ancienMotDePasse}"
+                            feedback="false"
+                            placeholder="Votre mot de passe actuel"
+                            styleClass="form-input"
+                            required="true"
+                            requiredMessage="L'ancien mot de passe est obligatoire"/>
+                        <p:message for="ancienMdp"/>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <p:password 
+                                id="nouveauMdp"
+                                value="#{adminProfileController.nouveauMotDePasse}"
+                                feedback="true"
+                                weakLabel="Faible"
+                                goodLabel="Bon"
+                                strongLabel="Très bon"
+                                placeholder="Nouveau mot de passe *"
+                                styleClass="form-input"
+                                required="true"
+                                requiredMessage="Le nouveau mot de passe est obligatoire"/>
+                            <p:message for="nouveauMdp"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <p:password 
+                            id="confirmMdp"
+                            value="#{adminProfileController.confirmationMotDePasse}"
+                            feedback="false"
+                            placeholder="Confirmer le mot de passe *"
+                            styleClass="form-input"
+                            required="true"
+                            requiredMessage="Veuillez confirmer votre mot de passe"/>
+                        <p:message for="confirmMdp"/>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="padding: 12px 12px 8px 12px;">
+                    <p:commandButton 
+                        value="Enregistrer" 
+                        action="#{adminProfileController.savePassword()}" 
+                        update=":mainForm,pwdMessages"
+                        oncomplete="handlePasswordSave(args)"
+                        styleClass="btn btn-primary"
+                        process="changePasswordForm"/>
+                    
+                    <p:commandButton 
+                        value="Annuler" 
+                        onclick="PF('dlgChangePassword').hide();"
+                        type="button"
+                        styleClass="btn btn-secondary"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <script type="text/javascript">
+        //<![CDATA[
+            function handleSave(args) {
+                if (!args.validationFailed) {
+                    setTimeout(function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Succès',
+                            text: 'Profil mis à jour avec succès',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            PF('dlgEditProfile').hide();
+                        });
+                    }, 300);
+                }
+            }
+
+            function handlePasswordSave(args) {
+                if (!args.validationFailed) {
+                    setTimeout(function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Succès',
+                            text: 'Mot de passe changé avec succès',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            PF('dlgChangePassword').hide();
+                        });
+                    }, 300);
+                }
+            }
+        //]]>
+        </script>
+    </ui:define>
+</ui:composition>

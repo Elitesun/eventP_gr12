@@ -1,0 +1,542 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/template.xhtml">
+    
+    <ui:define name="title">Gestion des Organisateurs - Admin</ui:define>
+    
+    <ui:define name="head">
+        <link rel="stylesheet" href="#{request.contextPath}/resources/css/users-management.css"/>
+    </ui:define>
+    
+    <ui:define name="pageIcon">
+        <i class="pi pi-users"></i>
+    </ui:define>
+    
+    <ui:define name="pageTitle">
+        Gestion des Organisateurs
+    </ui:define>
+    
+    <ui:define name="content">
+        <style>
+            /* Zenith Admin Style */
+            .admin-header {
+                background: white;
+                border-radius: 12px;
+                padding: 25px 30px;
+                margin-bottom: 25px;
+                box-shadow: 0 2px 8px rgba(0, 71, 255, 0.1);
+                border: 1px solid #e5e7eb;
+            }
+            
+            .admin-title {
+                font-size: 24px;
+                font-weight: 700;
+                color: #2c3e50;
+                margin: 0 0 8px 0;
+            }
+            
+            .admin-subtitle {
+                color: #6c757d;
+                font-size: 14px;
+                margin: 0;
+            }
+            
+            .toolbar-container {
+                background: white;
+                border-radius: 12px;
+                padding: 20px 25px;
+                margin-bottom: 25px;
+                box-shadow: 0 2px 8px rgba(0, 71, 255, 0.1);
+                border: 1px solid #e5e7eb;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .search-section {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                flex: 1;
+                min-width: 300px;
+            }
+            
+            .search-wrapper {
+                position: relative;
+                flex: 1;
+                max-width: 400px;
+            }
+            
+            .search-wrapper .ui-inputtext {
+                width: 100% !important;
+                padding: 12px 16px 12px 45px !important;
+                border: 2px solid #e1e8ed !important;
+                border-radius: 8px !important;
+                font-size: 14px !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .search-wrapper .ui-inputtext:focus {
+                border-color: #0047FF !important;
+                box-shadow: 0 0 0 3px rgba(0, 71, 255, 0.1) !important;
+                outline: none !important;
+            }
+            
+            .search-icon {
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #6c757d;
+                font-size: 16px;
+                z-index: 10;
+            }
+            
+            .table-wrapper {
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0, 71, 255, 0.1);
+                border: 1px solid #e5e7eb;
+            }
+            
+            .admin-table {
+                padding: 0 !important;
+            }
+            
+            .admin-table .ui-datatable {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            
+            .admin-table .ui-datatable-thead > tr > th {
+                background: transparent !important;
+                color: #6c757d !important;
+                font-weight: 600 !important;
+                font-size: 12px !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                padding: 16px 24px !important;
+                border: none !important;
+                border-bottom: 1px solid #f1f3f5 !important;
+            }
+            
+            .admin-table .ui-datatable-data > tr > td {
+                padding: 20px 24px !important;
+                border: none !important;
+                border-bottom: 1px solid #f1f3f5 !important;
+                font-size: 14px !important;
+                color: #1a1a1a !important;
+                vertical-align: middle !important;
+            }
+            
+            .admin-table .ui-datatable-data > tr:hover {
+                background: #f8f9fa !important;
+            }
+            
+            .admin-table .ui-datatable-data > tr:last-child > td {
+                border-bottom: none !important;
+            }
+            
+            .user-cell {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 14px;
+                flex-shrink: 0;
+            }
+            
+            .user-info {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+            
+            .user-name {
+                font-weight: 600;
+                font-size: 14px;
+                color: #1a1a1a;
+            }
+            
+            .user-email {
+                font-size: 13px;
+                color: #6c757d;
+            }
+            
+            .modal-form .ui-dialog {
+                border-radius: 12px !important;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+            }
+            
+            .modal-form .ui-dialog-titlebar {
+                background: white !important;
+                border: none !important;
+                border-bottom: 1px solid #f1f3f5 !important;
+                padding: 20px 24px !important;
+            }
+            
+            .modal-form .ui-dialog-title {
+                font-size: 18px !important;
+                font-weight: 700 !important;
+                color: #1a1a1a !important;
+            }
+            
+            .modal-form .ui-dialog-content {
+                padding: 24px !important;
+            }
+
+            .action-buttons-inline {
+                display: flex;
+                gap: 8px;
+                justify-content: center;
+            }
+
+            .action-buttons-inline .p-button {
+                padding: 8px 12px !important;
+                font-size: 12px !important;
+                border-radius: 6px !important;
+            }
+
+            .btn-view {
+                background: #e3f2fd !important;
+                color: #0047FF !important;
+                border: 1px solid #0047FF !important;
+            }
+
+            .btn-view:hover {
+                background: #0047FF !important;
+                color: white !important;
+            }
+
+            .btn-disable {
+                background: #ffebee !important;
+                color: #dc3545 !important;
+                border: 1px solid #dc3545 !important;
+            }
+
+            .btn-disable:hover {
+                background: #dc3545 !important;
+                color: white !important;
+            }
+        </style>
+        
+        <!-- FORMULAIRE UNIQUE POUR TOUTE LA PAGE -->
+        <h:form id="mainForm">
+            <!-- Header Section -->
+            <div class="admin-header">
+                <h2 class="admin-title">Gestion des Organisateurs</h2>
+                <p class="admin-subtitle">Gérez les comptes organisateurs de la plateforme.</p>
+            </div>
+            
+            <!-- Toolbar -->
+            <div class="toolbar-container">
+                <div class="search-section">
+                    <div class="search-wrapper">
+                        <i class="pi pi-search search-icon"></i>
+                        <p:inputText 
+                            value="#{userAdminController.rechercheTexte}"
+                            placeholder="Rechercher des organisateurs..."
+                            styleClass="search-field"/>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Table Container -->
+            <div class="table-wrapper">
+                <p:dataTable 
+                    id="tableOrganisateurs"
+                    widgetVar="tableOrganisateursWidget"
+                    value="#{userAdminController.getOrganisateursFiltres()}" 
+                    var="user"
+                    rowKey="#{user.id}"
+                    emptyMessage="Aucun organisateur trouvé"
+                    styleClass="admin-table">
+                    
+                    <!-- Colonne Organisateur -->
+                    <p:column headerText="Organisateur" style="width: 60%;">
+                        <div class="user-cell">
+                            <div class="user-avatar">
+                                <h:outputText value="#{user.nom.substring(0,1)}#{user.prenom.substring(0,1)}" 
+                                              rendered="#{not empty user.nom and not empty user.prenom}"/>
+                                <h:outputText value="??" rendered="#{empty user.nom or empty user.prenom}"/>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name">#{user.prenom} #{user.nom}</div>
+                                <div class="user-email">#{user.email}</div>
+                            </div>
+                        </div>
+                    </p:column>
+                    
+                    <!-- Colonne Statut -->
+                    <p:column headerText="Statut" style="width: 15%; text-align: center;">
+                        <p:tag 
+                            value="#{user.actif ? 'Actif' : 'Désactivé'}" 
+                            styleClass="#{user.actif ? 'tag-actif' : 'tag-inactif'}"/>
+                    </p:column>
+                    
+                    <!-- Colonne Employés (seulement pour MORALE) -->
+                    <p:column headerText="Employés" style="width: 15%; text-align: center;">
+                        <p:commandButton 
+                            icon="pi pi-users"
+                            title="Voir les employés"
+                            styleClass="p-button-sm btn-view"
+                            action="#{userAdminController.chargerEmployesOrganisateur(user)}"
+                            update=":employesForm"
+                            oncomplete="handleViewEmployes(args)"
+                            process="@this"
+                            rendered="#{user.personneMorale}"/>
+                        <h:outputText value="-" rendered="#{not user.personneMorale}"/>
+                    </p:column>
+                    
+                    <!-- Colonne Actions -->
+                    <p:column headerText="Actions" style="width: 20%; text-align: center;">
+                        <div class="action-buttons-inline">
+                            <p:commandButton 
+                                icon="pi pi-eye"
+                                title="Voir les détails"
+                                styleClass="p-button-sm btn-view"
+                                action="#{userAdminController.preparerDetails(user)}"
+                                update=":detailsForm"
+                                oncomplete="showDetailsComplete(args)"
+                                process="@this"/>
+                                
+                            <p:commandButton 
+                                icon="#{user.actif ? 'pi pi-lock' : 'pi pi-lock-open'}"
+                                title="#{user.actif ? 'Désactiver' : 'Réactiver'}"
+                                styleClass="p-button-sm btn-disable"
+                                action="#{userAdminController.basculerEtatUtilisateur(user)}"
+                                update="tableOrganisateurs,:mainForm"
+                                oncomplete="handleActionComplete(args, 'toggle')"
+                                process="@this"/>
+                        </div>
+                    </p:column>
+                </p:dataTable>
+            </div>
+        </h:form>
+        
+        <!-- Dialog de détails organisateur -->
+        <p:dialog header="Détails de l'organisateur" widgetVar="dialogDetails" modal="true" 
+                  responsive="true" width="500" closeOnEscape="true" styleClass="modal-form">
+            <h:form id="detailsForm">
+                <div style="padding: 20px;">
+                    <h:panelGroup rendered="#{userAdminController.utilisateurSelectionne != null}">
+                        <div class="user-cell" style="margin-bottom: 20px;">
+                            <div class="user-avatar" style="width: 60px; height: 60px; font-size: 20px;">
+                                #{userAdminController.utilisateurSelectionne.nom.substring(0,1)}#{userAdminController.utilisateurSelectionne.prenom.substring(0,1)}
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name" style="font-size: 18px;">#{userAdminController.utilisateurSelectionne.prenom} #{userAdminController.utilisateurSelectionne.nom}</div>
+                                <div class="user-email">#{userAdminController.utilisateurSelectionne.email}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div>
+                                <label style="font-weight: 600; color: #6c757d; font-size: 12px; text-transform: uppercase;">Statut</label>
+                                <p:tag value="#{userAdminController.utilisateurSelectionne.actif ? 'Actif' : 'Désactivé'}" 
+                                       styleClass="tag-#{userAdminController.utilisateurSelectionne.actif ? 'actif' : 'inactif'}"
+                                       style="margin-top: 5px;"/>
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; color: #6c757d; font-size: 12px; text-transform: uppercase;">Date d'inscription</label>
+                                <div style="margin-top: 5px; font-size: 14px;">#{userAdminController.getDerniereActivite(userAdminController.utilisateurSelectionne)}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Champs spécifiques pour les organisateurs MORALE -->
+                        <h:panelGroup rendered="#{userAdminController.utilisateurSelectionne.class.simpleName == 'Organisateur' and userAdminController.utilisateurSelectionne.personneMorale}">
+                            <div style="border-top: 1px solid #f1f3f5; padding-top: 15px;">
+                                <div style="margin-bottom: 15px;">
+                                    <label style="font-weight: 600; color: #6c757d; font-size: 12px; text-transform: uppercase;">Nom de l'entreprise</label>
+                                    <div style="margin-top: 5px; font-size: 14px;">#{userAdminController.utilisateurSelectionne.nomEntreprise}</div>
+                                </div>
+                                <div>
+                                    <label style="font-weight: 600; color: #6c757d; font-size: 12px; text-transform: uppercase;">Numéro SIRET</label>
+                                    <div style="margin-top: 5px; font-size: 14px;">#{userAdminController.utilisateurSelectionne.numeroSIRET}</div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </div>
+                
+                <div style="text-align: right; padding: 20px; border-top: 1px solid #f1f3f5;">
+                    <p:commandButton 
+                        value="Fermer"
+                        styleClass="p-button-secondary"
+                        onclick="PF('dialogDetails').hide(); return false;"
+                        process="@none"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- Dialog de détails des employés -->
+        <p:dialog header="Employés de l'organisateur" widgetVar="dialogEmployes" modal="true" 
+                  responsive="true" width="600" closeOnEscape="true" styleClass="modal-form">
+            <h:form id="employesForm">
+                <div style="padding: 20px;">
+                    <h:panelGroup rendered="#{userAdminController.employesOrganisateurSelectionne != null and not empty userAdminController.employesOrganisateurSelectionne}">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+                            <ui:repeat value="#{userAdminController.employesOrganisateurSelectionne}" var="employe">
+                                <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s ease;" 
+                                     onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.transform='translateY(-2px)'"
+                                     onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+                                    <div class="user-avatar" style="width: 50px; height: 50px; margin: 0 auto 10px auto; font-size: 18px;">
+                                        #{employe.nom.substring(0,1)}#{employe.prenom.substring(0,1)}
+                                    </div>
+                                    <div style="font-weight: 600; font-size: 14px;">#{employe.prenom} #{employe.nom}</div>
+                                    <div style="font-size: 12px; color: #6c757d; margin-top: 5px;">#{employe.email}</div>
+                                    <p:tag value="#{employe.actif ? 'Actif' : 'Inactif'}" 
+                                           styleClass="#{employe.actif ? 'tag-actif' : 'tag-inactif'}"
+                                           style="margin-top: 10px; display: block;"/>
+                                    <p:commandButton 
+                                        icon="pi pi-eye"
+                                        title="Voir les détails"
+                                        styleClass="p-button-sm p-button-text"
+                                        style="margin-top: 10px; width: 100%;"
+                                        action="#{userAdminController.preparerDetailsEmploye(employe)}"
+                                        update=":employeDetailsForm"
+                                        oncomplete="PF('dialogEmployeDetails').show()"
+                                        process="@this"/>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </h:panelGroup>
+                    
+                    <h:panelGroup rendered="#{userAdminController.employesOrganisateurSelectionne == null or empty userAdminController.employesOrganisateurSelectionne}">
+                        <div style="text-align: center; padding: 40px 20px; color: #6c757d;">
+                            <i class="pi pi-inbox" style="font-size: 48px; display: block; margin-bottom: 15px;"></i>
+                            <p>Aucun employé pour cet organisateur</p>
+                        </div>
+                    </h:panelGroup>
+                </div>
+                
+                <div style="text-align: right; padding: 20px; border-top: 1px solid #f1f3f5;">
+                    <p:commandButton 
+                        value="Fermer"
+                        styleClass="p-button-secondary"
+                        onclick="PF('dialogEmployes').hide(); return false;"
+                        process="@none"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- Dialog pour détails d'un employé -->
+        <p:dialog header="Détails de l'employé" widgetVar="dialogEmployeDetails" modal="true" 
+                  responsive="true" width="500" closeOnEscape="true" styleClass="modal-form">
+            <h:form id="employeDetailsForm">
+                <div style="padding: 20px;">
+                    <h:panelGroup rendered="#{userAdminController.employeSelectionne != null}">
+                        <div class="user-cell" style="margin-bottom: 20px;">
+                            <div class="user-avatar" style="width: 60px; height: 60px; font-size: 20px;">
+                                #{userAdminController.employeSelectionne.nom.substring(0,1)}#{userAdminController.employeSelectionne.prenom.substring(0,1)}
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name" style="font-size: 18px;">#{userAdminController.employeSelectionne.prenom} #{userAdminController.employeSelectionne.nom}</div>
+                                <div class="user-email">#{userAdminController.employeSelectionne.email}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div>
+                                <label style="font-weight: 600; color: #6c757d; font-size: 12px; text-transform: uppercase;">Statut</label>
+                                <p:tag value="#{userAdminController.employeSelectionne.actif ? 'Actif' : 'Inactif'}" 
+                                       styleClass="#{userAdminController.employeSelectionne.actif ? 'tag-actif' : 'tag-inactif'}"
+                                       style="margin-top: 5px;"/>
+                            </div>
+                            <div>
+                                <label style="font-weight: 600; color: #6c757d; font-size: 12px; text-transform: uppercase;">Téléphone</label>
+                                <div style="margin-top: 5px; font-size: 14px;">#{not empty userAdminController.employeSelectionne.telephone ? userAdminController.employeSelectionne.telephone : 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid #f1f3f5; padding-top: 15px;">
+                            <div>
+                                <label style="font-weight: 600; color: #6c757d; font-size: 12px; text-transform: uppercase;">Adresse</label>
+                                <div style="margin-top: 5px; font-size: 14px;">#{not empty userAdminController.employeSelectionne.adresse ? userAdminController.employeSelectionne.adresse : 'N/A'}</div>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <label style="font-weight: 600; color: #6c757d; font-size: 12px; text-transform: uppercase;">Employeur</label>
+                                <div style="margin-top: 5px; font-size: 14px;">#{userAdminController.employeSelectionne.employeur.nomEntreprise}</div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </div>
+                
+                <div style="text-align: right; padding: 20px; border-top: 1px solid #f1f3f5;">
+                    <p:commandButton 
+                        value="Fermer"
+                        styleClass="p-button-secondary"
+                        onclick="PF('dialogEmployeDetails').hide(); return false;"
+                        process="@none"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <style>
+            .tag-actif {
+                background: #e8f5e9 !important;
+                color: #2e7d32 !important;
+            }
+
+            .tag-inactif {
+                background: #ffebee !important;
+                color: #dc3545 !important;
+            }
+        </style>
+
+        <script type="text/javascript">
+        //<![CDATA[
+            function handleActionComplete(args, action) {
+                if (!args.validationFailed) {
+                    if (action === 'toggle') {
+                        setTimeout(function() {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Succès',
+                                text: 'Statut de l\'organisateur modifié avec succès',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        }, 300);
+                    }
+                }
+            }
+
+            function showDetailsComplete(args) {
+                if (!args.validationFailed) {
+                    setTimeout(function() {
+                        PF('dialogDetails').show();
+                    }, 100);
+                }
+            }
+
+            function handleViewEmployes(args) {
+                if (!args.validationFailed) {
+                    setTimeout(function() {
+                        PF('dialogEmployes').show();
+                    }, 300);
+                }
+            }
+        //]]>
+        </script>
+    </ui:define>
+</ui:composition>

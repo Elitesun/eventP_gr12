@@ -1,0 +1,566 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+    
+    <h:head>
+        <title><ui:insert name="title">EventPlatform - Plateforme Événementielle</ui:insert></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        
+        <!-- Bootstrap 5 CDN -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Tailwind CSS CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <!-- Font Awesome 6 CDN -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+        
+        <!-- SweetAlert2 CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        <!-- PrimeIcons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeicons@6.0.1/primeicons.css"/>
+        
+        <!-- Page-specific CSS -->
+        <ui:insert name="head"></ui:insert>
+        
+        <style>
+            /* EventPlatform Design System */
+            :root {
+                --eventplatform-blue: #0047FF;
+                --eventplatform-blue-dark: #0039CC;
+                --eventplatform-bg: #f4f7f9;
+                --eventplatform-white: #ffffff;
+                --eventplatform-border: #e5e7eb;
+                --eventplatform-text: #1a1a1a;
+                --eventplatform-text-muted: #6c757d;
+                --sidebar-width: 260px;
+            }
+            
+            /* Reset et Base */
+            * {
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+                background: var(--eventplatform-bg) !important;
+                margin: 0;
+                padding: 0;
+                overflow-x: hidden;
+            }
+            
+            /* Layout Principal - STABLE */
+            .wrapper {
+                display: flex;
+                min-height: 100vh;
+                width: 100%;
+            }
+            
+            /* Sidebar Fixe - NE BOUGE JAMAIS */
+            .sidebar {
+                width: var(--sidebar-width);
+                background: linear-gradient(135deg, #1a3a52 0%, #0f2438 100%);
+                color: white;
+                flex-shrink: 0;
+                flex-grow: 0;
+                flex-basis: var(--sidebar-width);
+                position: fixed;
+                height: 100vh;
+                left: 0;
+                top: 0;
+                z-index: 1000;
+                overflow: hidden;
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* Contenu Principal */
+            .main-content {
+                flex-grow: 1;
+                background: var(--eventplatform-bg);
+                margin-left: var(--sidebar-width);
+                min-height: 100vh;
+                width: calc(100% - var(--sidebar-width));
+                padding: 0;
+            }
+            
+            /* Header Sidebar */
+            .sidebar-header {
+                flex-shrink: 0;
+                padding: 25px 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+                text-align: center;
+                background: linear-gradient(135deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
+            }
+            
+            .sidebar-header-logo {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .sidebar-header-logo i {
+                font-size: 28px;
+            }
+
+            .sidebar-header h3 {
+                color: white;
+                font-size: 18px;
+                font-weight: 700;
+                margin: 0;
+                letter-spacing: 0.5px;
+            }
+
+            .sidebar-header p {
+                color: rgba(255, 255, 255, 0.75);
+                font-size: 11px;
+                margin: 5px 0 0 0;
+                text-transform: uppercase;
+                letter-spacing: 1.2px;
+                font-weight: 500;
+            }
+
+            /* Menu Sections */
+            .sidebar-menu-section {
+                margin-bottom: 5px;
+            }
+            
+            .sidebar-menu-label {
+                padding: 8px 25px 6px 25px;
+                color: rgba(255, 255, 255, 0.85);
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-weight: 600;
+                margin-top: 10px;
+            }
+            
+            .sidebar-menu-label:first-child {
+                margin-top: 0;
+            }
+            
+            .sidebar-menu-items {
+                background: transparent !important;
+                border: none !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            /* Menu Sidebar */
+            .sidebar-menu {
+                flex: 1;
+                padding: 12px 0;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            .sidebar-menu::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .sidebar-menu::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 3px;
+            }
+
+            .sidebar-menu::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            .sidebar-menu .ui-menu {
+                background: transparent !important;
+                border: none !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            .sidebar-menu .ui-menuitem {
+                margin: 0 !important;
+                border: none !important;
+                background: transparent !important;
+            }
+
+            .sidebar-menu .ui-menuitem-link {
+                background: transparent !important;
+                border: none !important;
+                color: #ffffff !important;
+                padding: 12px 15px !important;
+                display: flex !important;
+                align-items: center !important;
+                text-decoration: none !important;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                border-radius: 6px !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                margin: 4px 8px !important;
+                border-left: 3px solid transparent !important;
+                position: relative !important;
+            }
+
+            .sidebar-menu .ui-menuitem:hover > .ui-menuitem-link {
+                background: rgba(0, 71, 255, 0.2) !important;
+            }
+
+            .sidebar-menu .ui-menuitem:hover > .ui-menuitem-link,
+            .sidebar-menu .ui-menuitem-link:focus {
+                outline: none !important;
+            }
+
+            .sidebar-menu .ui-menuitem > .ui-menuitem-link:hover {
+                background: rgba(0, 71, 255, 0.3) !important;
+                color: #ffffff !important;
+                border-left: 3px solid var(--eventplatform-blue) !important;
+                font-weight: 600 !important;
+            }
+
+            .sidebar-menu .ui-menuitem-link.ui-state-active {
+                background: rgba(0, 71, 255, 0.35) !important;
+                color: #ffffff !important;
+                border-left: 3px solid var(--eventplatform-blue) !important;
+                font-weight: 600 !important;
+            }
+
+            .sidebar-menu .ui-menuitem-link.ui-state-active:hover {
+                background: rgba(0, 71, 255, 0.45) !important;
+                color: #ffffff !important;
+            }
+
+            /* Icônes dans des carrés colorés */
+            .sidebar-menu .ui-menuitem-icon {
+                margin-right: 12px !important;
+                font-size: 16px !important;
+                width: 32px !important;
+                height: 32px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: rgba(255, 255, 255, 0.1) !important;
+                border-radius: 6px !important;
+                flex-shrink: 0 !important;
+                transition: all 0.25s ease !important;
+                color: #ffffff !important;
+            }
+
+            .sidebar-menu .ui-menuitem > .ui-menuitem-link:hover .ui-menuitem-icon {
+                background: rgba(0, 71, 255, 0.3) !important;
+                color: #ffffff !important;
+            }
+
+            .sidebar-menu .ui-menuitem-link.ui-state-active .ui-menuitem-icon {
+                background: linear-gradient(135deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%) !important;
+                color: #ffffff !important;
+            }
+            
+            /* User Info Sidebar */
+            .sidebar-user {
+                flex-shrink: 0;
+                padding: 20px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.1) 100%);
+            }
+
+            .sidebar-user-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .sidebar-user-avatar {
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 18px;
+                flex-shrink: 0;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                color: white;
+            }
+
+            .sidebar-user-details h5 {
+                color: white;
+                font-size: 14px;
+                font-weight: 600;
+                margin: 0;
+                line-height: 1.3;
+            }
+
+            .sidebar-user-details p {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 12px;
+                margin: 2px 0 0 0;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-weight: 500;
+            }
+
+            .sidebar-logout {
+                width: 100%;
+                background: rgba(0, 123, 255, 0.2) !important;
+                border: 1px solid rgba(0, 123, 255, 0.4) !important;
+                color: rgba(255, 255, 255, 0.95) !important;
+                padding: 10px 16px !important;
+                border-radius: 6px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+
+            .sidebar-logout:hover {
+                background: rgba(0, 123, 255, 0.35) !important;
+                border-color: rgba(0, 123, 255, 0.6) !important;
+                transform: translateY(-1px);
+            }
+            
+            /* Content Header */
+            .content-header {
+                background: white;
+                padding: 25px 30px;
+                border-bottom: 1px solid var(--eventplatform-border);
+                margin-bottom: 0;
+            }
+            
+            .content-title {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .content-title i {
+                font-size: 24px;
+                color: var(--eventplatform-blue);
+            }
+            
+            .content-title h1 {
+                font-size: 28px;
+                font-weight: 700;
+                color: var(--eventplatform-text);
+                margin: 0;
+            }
+            
+            /* Content Body */
+            .content-body {
+                padding: 30px;
+                min-height: calc(100vh - 120px);
+            }
+            
+            /* Messages Globales */
+            .ui-growl {
+                z-index: 9999 !important;
+                top: 20px !important;
+                right: 20px !important;
+            }
+            
+            /* PrimeFaces Overrides pour Stabilité */
+            .ui-widget {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            }
+            
+            .ui-datatable {
+                width: 100% !important;
+                overflow: hidden !important;
+            }
+            
+            .ui-datatable table {
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+            
+            .ui-panel {
+                width: 100% !important;
+                overflow: hidden !important;
+            }
+            
+            /* Responsive - Masquer sidebar sur mobile */
+            @media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                    transition: transform 0.3s ease;
+                }
+                
+                .main-content {
+                    margin-left: 0;
+                    width: 100%;
+                }
+            }
+        </style>
+    </h:head>
+    
+    <h:body>
+        <div class="wrapper">
+            <!-- Sidebar Fixe -->
+            <div class="sidebar">
+                <!-- Header Sidebar -->
+                <div class="sidebar-header">
+                    <div class="sidebar-header-logo">
+                        <i class="pi pi-calendar"></i>
+                    </div>
+                    <h3>EventPlatform</h3>
+                    <p>Événements &amp; Billetterie</p>
+                </div>
+                
+                <!-- Menu Navigation -->
+                <div class="sidebar-menu">
+                    <h:form>
+                        <!-- ========== MENU GERANT ========== -->
+                        <h:panelGroup rendered="#{authController.utilisateurConnecte != null and authController.utilisateurConnecte.role == 'GERANT'}">
+                            <div class="sidebar-menu-label">Gestion</div>
+                            <p:menu styleClass="sidebar-menu-items">
+                                <p:menuitem 
+                                    value="Dashboard" 
+                                    icon="pi pi-home"
+                                    outcome="dashboard_home?faces-redirect=true"/>
+                                
+                                <p:menuitem 
+                                    value="Clients" 
+                                    icon="pi pi-users"
+                                    outcome="clients_management?faces-redirect=true"/>
+                                
+                                <p:menuitem 
+                                    value="Organisateurs" 
+                                    icon="pi pi-briefcase"
+                                    outcome="organisateurs_management?faces-redirect=true"/>
+                            </p:menu>
+                            
+                            <div class="sidebar-menu-label">Compte</div>
+                            <p:menu styleClass="sidebar-menu-items">
+                                <p:menuitem 
+                                    value="Mon Profil" 
+                                    icon="pi pi-user-edit"
+                                    outcome="admin_settings?faces-redirect=true"/>
+                            </p:menu>
+                        </h:panelGroup>
+                        
+                        <!-- ========== MENU ORGANISATEUR ========== -->
+                        <h:panelGroup rendered="#{authController.utilisateurConnecte != null and authController.utilisateurConnecte.role == 'ORGANISATEUR'}">
+                            <div class="sidebar-menu-label">Événements</div>
+                            <p:menu styleClass="sidebar-menu-items">
+                                <p:menuitem
+                                    value="Mes Événements"
+                                    icon="pi pi-calendar"
+                                    outcome="admin_events?faces-redirect=true"/>
+                            </p:menu>
+
+                            <div class="sidebar-menu-label">Navigation</div>
+                            <p:menu styleClass="sidebar-menu-items">
+                                <p:menuitem
+                                    value="Dashboard"
+                                    icon="pi pi-chart-bar"
+                                    outcome="dashboard_orga?faces-redirect=true"/>
+
+                                <p:menuitem
+                                    value="Employés"
+                                    icon="pi pi-users"
+                                    outcome="manage_employees?faces-redirect=true"
+                                    rendered="#{authController.utilisateurConnecte != null and authController.utilisateurConnecte.personneMorale}"/>
+                            </p:menu>
+
+                            <div class="sidebar-menu-label">Compte</div>
+                            <p:menu styleClass="sidebar-menu-items">
+                                <p:menuitem
+                                    value="Mon Profil"
+                                    icon="pi pi-user-edit"
+                                    outcome="organizer_settings?faces-redirect=true"/>
+                            </p:menu>
+                        </h:panelGroup>
+                        
+                        <!-- ========== MENU CLIENT & EMPLOYE ========== -->
+                        <h:panelGroup rendered="#{authController.utilisateurConnecte != null and (authController.utilisateurConnecte.role == 'CLIENT' or authController.utilisateurConnecte.role == 'EMPLOYE')}">
+                            <div class="sidebar-menu-label">Billetterie</div>
+                            <p:menu styleClass="sidebar-menu-items">
+                                <p:menuitem
+                                    value="Événements"
+                                    icon="pi pi-calendar"
+                                    outcome="events?faces-redirect=true"/>
+
+                                <p:menuitem
+                                    value="Mes Billets"
+                                    icon="pi pi-ticket"
+                                    outcome="client_tickets?faces-redirect=true"/>
+
+                                <p:menuitem
+                                    value="Découvrir"
+                                    icon="pi pi-search"
+                                    outcome="index?faces-redirect=true"/>
+                            </p:menu>
+
+                            <div class="sidebar-menu-label">Compte</div>
+                            <p:menu styleClass="sidebar-menu-items">
+                                <p:menuitem
+                                    value="Mon Profil"
+                                    icon="pi pi-user-edit"
+                                    outcome="client_settings?faces-redirect=true"
+                                    rendered="#{authController.utilisateurConnecte.role == 'CLIENT'}"/>
+                            </p:menu>
+                        </h:panelGroup>
+                    </h:form>
+                </div>
+                
+                <!-- User Info -->
+                <div class="sidebar-user">
+                    <div class="sidebar-user-info">
+                        <h:panelGroup rendered="#{authController.utilisateurConnecte != null}">
+                            <div class="sidebar-user-avatar">
+                                #{authController.utilisateurConnecte.nom.substring(0,1)}#{authController.utilisateurConnecte.prenom.substring(0,1)}
+                            </div>
+                            <div class="sidebar-user-details">
+                                <h5>#{authController.utilisateurConnecte.prenom} #{authController.utilisateurConnecte.nom}</h5>
+                                <p>#{authController.utilisateurConnecte.role}</p>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                    <h:form>
+                        <p:commandButton 
+                            value="Déconnexion" 
+                            icon="pi pi-sign-out"
+                            styleClass="sidebar-logout"
+                            action="#{authController.seDeconnecter()}"
+                            process="@this"
+                            rendered="#{authController.utilisateurConnecte != null}"/>
+                    </h:form>
+                </div>
+            </div>
+            
+            <!-- Contenu Principal -->
+            <div class="main-content">
+                <!-- Messages Globales -->
+                <p:growl id="growl" showDetail="true" life="4000" />
+                
+                <!-- Header du Contenu -->
+                <div class="content-header">
+                    <div class="content-title">
+                        <ui:insert name="pageIcon"><i class="pi pi-home"></i></ui:insert>
+                        <h1><ui:insert name="pageTitle">Dashboard</ui:insert></h1>
+                    </div>
+                </div>
+                
+                <!-- Corps du Contenu -->
+                <div class="content-body">
+                    <ui:insert name="content">
+                        <p>Contenu par défaut</p>
+                    </ui:insert>
+                </div>
+            </div>
+        </div>
+    </h:body>
+</html>
