@@ -2,13 +2,16 @@ package service;
 
 import dao.EvenementDao;
 import dao.TicketDao;
+import dao.TicketCategorieDao;
 import entities.Evenement;
 import entities.Organisateur;
 import entities.Ticket;
+import entities.TicketCategorie;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Service métier pour la gestion des événements
@@ -23,10 +26,44 @@ public class EvenementService {
     @EJB
     private TicketDao ticketDao;
 
+    @EJB
+    private TicketCategorieDao ticketCategorieDao;
+
     /**
      * Crée un nouvel événement avec ses tickets
      */
     public Evenement creerEvenement(Evenement evenement) {
+        List<TicketCategorie> categories = evenement.getCategories() != null
+            ? evenement.getCategories()
+            : new ArrayList<>();
+
+        if (!categories.isEmpty()) {
+            double prixMin = Double.MAX_VALUE;
+            int quantiteTotale = 0;
+            for (TicketCategorie categorie : categories) {
+                if (categorie.getNom() == null || categorie.getNom().trim().isEmpty()) {
+                    throw new IllegalArgumentException("Chaque catégorie doit avoir un nom");
+                }
+                if (categorie.getPrix() == null || categorie.getPrix() < 0) {
+                    throw new IllegalArgumentException("Le prix d'une catégorie ne peut pas être négatif");
+                }
+                if (categorie.getQuantiteTotale() == null || categorie.getQuantiteTotale() <= 0) {
+                    throw new IllegalArgumentException("La quantité d'une catégorie doit être positive");
+                }
+
+                quantiteTotale += categorie.getQuantiteTotale();
+                if (categorie.getPrix() < prixMin) {
+                    prixMin = categorie.getPrix();
+                }
+                categorie.setEvenement(evenement);
+            }
+
+            evenement.setNombreTicketsTotal(quantiteTotale);
+            evenement.setPrixTicket(prixMin == Double.MAX_VALUE ? 0.0 : prixMin);
+            evenement.setTicketsVendus(0);
+            evenement.setTicketsDisponibles(quantiteTotale);
+        }
+
         // Validation métier
         if (evenement.getNombreTicketsTotal() <= 0) {
             throw new IllegalArgumentException("Le nombre de tickets doit être positif");
@@ -65,18 +102,99 @@ public class EvenementService {
      * Met à jour un événement
      */
     public Evenement mettreAJourEvenement(Evenement evenement) {
-        // Vérifier que l'événement peut être modifié
-        if (!evenement.peutEtreModifie()) {
+        Evenement evenementExistant = evenementDao.trouverParIdAvecCategories(evenement.getId());
+        if (evenementExistant == null) {
+            throw new IllegalArgumentException("Événement introuvable");
+        }
+
+        // Règle métier demandée: modification possible uniquement avant la première vente
+        if (ticketDao.compterTicketsVendus(evenementExistant.getId()) > 0) {
+            throw new IllegalStateException("Cet événement ne peut plus être modifié après la première vente");
+        }
+
+        if (!evenementExistant.peutEtreModifie()) {
             throw new IllegalStateException("Cet événement ne peut plus être modifié");
         }
 
-        // Si le nombre de tickets a changé, ajuster les tickets
-        Evenement evenementExistant = evenementDao.trouverParId(evenement.getId());
-        if (!evenement.getNombreTicketsTotal().equals(evenementExistant.getNombreTicketsTotal())) {
-            ajusterNombreTickets(evenement, evenementExistant);
+        // Copier les champs modifiables
+        evenementExistant.setTitre(evenement.getTitre());
+        evenementExistant.setDescription(evenement.getDescription());
+        evenementExistant.setDateEvenement(evenement.getDateEvenement());
+        evenementExistant.setLieu(evenement.getLieu());
+        evenementExistant.setImageUrl(evenement.getImageUrl());
+        evenementExistant.setStatut(evenement.getStatut());
+
+        List<TicketCategorie> categories = evenement.getCategories() != null
+            ? evenement.getCategories()
+            : new ArrayList<>();
+
+        if (!categories.isEmpty()) {
+            // Supprimer les tickets existants et régénérer selon les nouvelles catégories
+            List<Ticket> ticketsExistants = ticketDao.trouverParEvenement(evenementExistant);
+            for (Ticket ticket : ticketsExistants) {
+                ticketDao.supprimer(ticket);
+            }
+
+            evenementExistant.getCategories().clear();
+
+            double prixMin = Double.MAX_VALUE;
+            int quantiteTotale = 0;
+            for (TicketCategorie categorie : categories) {
+                if (categorie.getNom() == null || categorie.getNom().trim().isEmpty()) {
+                    continue;
+                }
+                if (categorie.getQuantiteTotale() == null || categorie.getQuantiteTotale() <= 0) {
+                    continue;
+                }
+                if (categorie.getPrix() == null || categorie.getPrix() < 0) {
+                    continue;
+                }
+
+                TicketCategorie nouvelleCategorie = new TicketCategorie();
+                nouvelleCategorie.setNom(categorie.getNom().trim());
+                nouvelleCategorie.setPrix(categorie.getPrix());
+                nouvelleCategorie.setQuantiteTotale(categorie.getQuantiteTotale());
+                nouvelleCategorie.setQuantiteVendue(0);
+                nouvelleCategorie.setQuantiteDisponible(categorie.getQuantiteTotale());
+                nouvelleCategorie.setEvenement(evenementExistant);
+                evenementExistant.getCategories().add(nouvelleCategorie);
+
+                quantiteTotale += nouvelleCategorie.getQuantiteTotale();
+                if (nouvelleCategorie.getPrix() < prixMin) {
+                    prixMin = nouvelleCategorie.getPrix();
+                }
+            }
+
+            if (evenementExistant.getCategories().isEmpty()) {
+                throw new IllegalArgumentException("Au moins une catégorie de ticket valide est requise");
+            }
+
+            evenementExistant.setNombreTicketsTotal(quantiteTotale);
+            evenementExistant.setPrixTicket(prixMin == Double.MAX_VALUE ? 0.0 : prixMin);
+            evenementExistant.setTicketsVendus(0);
+            evenementExistant.setTicketsDisponibles(quantiteTotale);
+        } else {
+            evenementExistant.setPrixTicket(evenement.getPrixTicket());
+            evenementExistant.setNombreTicketsTotal(evenement.getNombreTicketsTotal());
+            evenementExistant.setTicketsVendus(0);
+            evenementExistant.setTicketsDisponibles(evenement.getNombreTicketsTotal());
         }
 
-        return evenementDao.mettreAJour(evenement);
+        Evenement updated = evenementDao.mettreAJour(evenementExistant);
+        evenementDao.flush();
+
+        // Régénérer les tickets selon la nouvelle configuration
+        genererTicketsPourEvenement(updated);
+        return updated;
+    }
+
+    public Evenement mettreAJourEvenement(Long organisateurId, Evenement evenement) {
+        Evenement owned = trouverEvenementParIdEtOrganisateur(evenement.getId(), organisateurId);
+        if (owned == null) {
+            throw new IllegalStateException("Accès refusé: événement non autorisé");
+        }
+        evenement.setOrganisateur(owned.getOrganisateur());
+        return mettreAJourEvenement(evenement);
     }
 
     /**
@@ -96,6 +214,14 @@ public class EvenementService {
         return evenementDao.mettreAJour(evenement);
     }
 
+    public Evenement publierEvenement(Long organisateurId, Long evenementId) {
+        Evenement evenement = trouverEvenementParIdEtOrganisateur(evenementId, organisateurId);
+        if (evenement == null) {
+            throw new IllegalStateException("Accès refusé: événement non autorisé");
+        }
+        return publierEvenement(evenementId);
+    }
+
     /**
      * Annule un événement
      */
@@ -111,6 +237,14 @@ public class EvenementService {
 
         evenement.setStatut(Evenement.StatutEvenement.ANNULE);
         return evenementDao.mettreAJour(evenement);
+    }
+
+    public Evenement annulerEvenement(Long organisateurId, Long evenementId) {
+        Evenement evenement = trouverEvenementParIdEtOrganisateur(evenementId, organisateurId);
+        if (evenement == null) {
+            throw new IllegalStateException("Accès refusé: événement non autorisé");
+        }
+        return annulerEvenement(evenementId);
     }
 
     /**
@@ -138,6 +272,14 @@ public class EvenementService {
         evenementDao.supprimer(evenement);
     }
 
+    public void supprimerEvenement(Long organisateurId, Long evenementId) {
+        Evenement evenement = trouverEvenementParIdEtOrganisateur(evenementId, organisateurId);
+        if (evenement == null) {
+            throw new IllegalStateException("Accès refusé: événement non autorisé");
+        }
+        supprimerEvenement(evenementId);
+    }
+
     /**
      * Récupère un événement par son ID
      */
@@ -159,6 +301,21 @@ public class EvenementService {
         return evenementDao.trouverParOrganisateur(organisateur);
     }
 
+    public Evenement trouverEvenementAvecCategories(Long id) {
+        return evenementDao.trouverParIdAvecCategories(id);
+    }
+
+    public Evenement trouverEvenementParIdEtOrganisateur(Long evenementId, Long organisateurId) {
+        if (evenementId == null || organisateurId == null) {
+            return null;
+        }
+        return evenementDao.trouverParIdEtOrganisateurId(evenementId, organisateurId);
+    }
+
+    public List<TicketCategorie> trouverCategoriesDisponibles(Long evenementId) {
+        return ticketCategorieDao.trouverDisponiblesParEvenementId(evenementId);
+    }
+
     /**
      * Récupère les événements publiés
      */
@@ -177,46 +334,26 @@ public class EvenementService {
      * Génère les tickets pour un événement
      */
     private void genererTicketsPourEvenement(Evenement evenement) {
+        int sequence = 1;
+
+        if (evenement.getCategories() != null && !evenement.getCategories().isEmpty()) {
+            for (TicketCategorie categorie : evenement.getCategories()) {
+                for (int i = 0; i < categorie.getQuantiteTotale(); i++) {
+                    Ticket ticket = new Ticket();
+                    ticket.setEvenement(evenement);
+                    ticket.setCategorie(categorie);
+                    ticket.setCodeQr(Ticket.genererCodeQr(Long.valueOf(sequence++), evenement.getId()));
+                    ticketDao.creer(ticket);
+                }
+            }
+            return;
+        }
+
         for (int i = 1; i <= evenement.getNombreTicketsTotal(); i++) {
             Ticket ticket = new Ticket();
             ticket.setEvenement(evenement);
             ticket.setCodeQr(Ticket.genererCodeQr(Long.valueOf(i), evenement.getId()));
             ticketDao.creer(ticket);
         }
-    }
-
-    /**
-     * Ajuste le nombre de tickets d'un événement
-     */
-    private void ajusterNombreTickets(Evenement evenementNouveau, Evenement evenementExistant) {
-        int difference = evenementNouveau.getNombreTicketsTotal() - evenementExistant.getNombreTicketsTotal();
-
-        if (difference > 0) {
-            // Ajouter des tickets
-            List<Ticket> ticketsExistants = ticketDao.trouverParEvenement(evenementExistant);
-            int dernierNumero = ticketsExistants.size();
-
-            for (int i = 1; i <= difference; i++) {
-                Ticket ticket = new Ticket();
-                ticket.setEvenement(evenementNouveau);
-                ticket.setCodeQr(Ticket.genererCodeQr(Long.valueOf(dernierNumero + i), evenementNouveau.getId()));
-                ticketDao.creer(ticket);
-            }
-        } else if (difference < 0) {
-            // Supprimer des tickets (seulement les disponibles)
-            List<Ticket> ticketsDisponibles = ticketDao.trouverTicketsDisponibles(evenementExistant);
-            int nombreASupprimer = Math.abs(difference);
-
-            if (ticketsDisponibles.size() < nombreASupprimer) {
-                throw new IllegalStateException("Impossible de réduire le nombre de tickets : pas assez de tickets disponibles");
-            }
-
-            for (int i = 0; i < nombreASupprimer; i++) {
-                ticketDao.supprimer(ticketsDisponibles.get(i));
-            }
-        }
-
-        // Recalculer les compteurs
-        evenementNouveau.recalculerTicketsDisponibles();
     }
 }

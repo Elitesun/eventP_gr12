@@ -104,7 +104,7 @@ public class SecurityHelper {
     public static boolean checkAuthentication(AuthController authController) {
         if (authController == null || authController.getUtilisateurConnecte() == null) {
             try {
-                System.out.println("=== SÉCURITÉ: Utilisateur non connecté, redirection vers login ===");
+
                 FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
                 return false;
             } catch (IOException e) {
@@ -126,7 +126,7 @@ public class SecurityHelper {
         Personne.Role userRole = authController.getUtilisateurConnecte().getRole();
         if (!userRole.equals(requiredRole)) {
             try {
-                System.out.println("=== SÉCURITÉ: Accès refusé - Rôle requis: " + requiredRole + ", Rôle utilisateur: " + userRole + " ===");
+
                 
                 FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, 
@@ -160,7 +160,7 @@ public class SecurityHelper {
         }
         
         try {
-            System.out.println("=== SÉCURITÉ: Accès refusé - Rôles autorisés: " + java.util.Arrays.toString(allowedRoles) + ", Rôle utilisateur: " + userRole + " ===");
+
             
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, 

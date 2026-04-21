@@ -6,7 +6,7 @@
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/public_template.xhtml">
 
-    <ui:define name="title">Vérification de Ticket - EventPlatform</ui:define>
+    <ui:define name="title">Vérification de Ticket - GreenPulse Events</ui:define>
 
     <ui:define name="head">
         <script src="https://unpkg.com/html5-qrcode"></script>
@@ -20,13 +20,13 @@
                 width: 100%;
                 border-radius: 15px;
                 overflow: hidden;
-                border: 2px solid #0047FF;
+                border: 2px solid #0f766e;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
                 margin-bottom: 20px;
                 background: #000;
             }
             #reader button {
-                background: #0047FF !important;
+                background: #0f766e !important;
                 color: white !important;
                 border: none !important;
                 padding: 10px 20px !important;
@@ -41,8 +41,8 @@
                 border: 1px solid #eee;
                 margin-top: 20px;
             }
-            .ticket-header-blue {
-                background: linear-gradient(135deg, #0047FF 0%, #0039CC 100%);
+            .ticket-header-teal {
+                background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
                 color: white;
                 padding: 30px;
                 text-align: center;
@@ -181,23 +181,14 @@
 
             <h:form id="scanForm">
 
-                <!-- Zone debug (visible pour diagnostiquer) -->
-                <div class="debug-box">
-                    <strong>DEBUG:</strong> #{scanBean.debugInfo}
-                    <br/>
-                    <strong>Code QR:</strong> [#{scanBean.codeQr}]
-                    <br/>
-                    <strong>Ticket trouvé:</strong> #{scanBean.ticket != null ? 'OUI' : 'NON'}
-                    <br/>
-                    <strong>Erreur:</strong> #{scanBean.messageErreur}
-                </div>
+
 
                 <!-- Zone Caméra (visible seulement si aucun code n'est dans l'URL) -->
                 <h:panelGroup rendered="#{empty scanBean.codeQr}">
                     <div id="reader"></div>
                     <div id="restartScanBtn" style="display:none; text-align:center; margin-bottom: 20px;">
                         <button type="button" onclick="startScanner()"
-                                style="background:white;border:2px solid #0047FF;color:#0047FF;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;">
+                                style="background:white;border:2px solid #0f766e;color:#0f766e;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;">
                             Relancer le Scan
                         </button>
                     </div>
@@ -216,7 +207,7 @@
                                          action="#{scanBean.chargerTicket()}"
                                          update="@form"
                                          process="@form"
-                                         style="background:#0047FF;color:white;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:600;" />
+                                         style="background:#0f766e;color:white;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:600;" />
                     </div>
                 </div>
 
@@ -230,7 +221,7 @@
                 <!-- TICKET TROUVÉ : affichage des détails -->
                 <h:panelGroup rendered="#{scanBean.ticket != null}">
                     <div class="ticket-card">
-                        <div class="ticket-header-blue">
+                        <div class="ticket-header-teal">
                             <div style="font-size:3rem;">&#127915;</div>
                             <h2 style="margin:10px 0 0;">
                                 <h:outputText value="#{scanBean.ticket.evenement.titre}" rendered="#{scanBean.ticket.evenement != null}" />

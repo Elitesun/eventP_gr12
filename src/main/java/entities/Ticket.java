@@ -3,7 +3,11 @@ package entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.UUID;
@@ -15,13 +19,17 @@ import utils.QrCodeUtils;
  */
 @Entity
 @Table(name = "ticket")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"evenement", "categorie", "achat", "client"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @NotBlank(message = "Le code QR est obligatoire")
@@ -41,6 +49,9 @@ public class Ticket {
     @Column(name = "date_achat")
     private Date dateAchat;
 
+    @Column(name = "prix_vente")
+    private Double prixVente;
+
     // Relations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evenement_id", nullable = false)
@@ -53,6 +64,10 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "achat_id")
     private Achat achat;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categorie_id")
+    private TicketCategorie categorie;
 
     @Transient
     private String qrCodeImage;
@@ -85,6 +100,9 @@ public class Ticket {
         this.statut = StatutTicket.VENDU;
         this.client = acheteur;
         this.dateAchat = new Date();
+        if (this.categorie != null && this.categorie.getPrix() != null) {
+            this.prixVente = this.categorie.getPrix();
+        }
     }
 
     /**
@@ -104,6 +122,7 @@ public class Ticket {
             this.statut = StatutTicket.DISPONIBLE;
             this.client = null;
             this.dateAchat = null;
+            this.prixVente = null;
         }
     }
 

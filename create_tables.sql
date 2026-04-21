@@ -74,6 +74,7 @@ CREATE TABLE evenement (
     description TEXT NOT NULL,
     date_evenement TIMESTAMP NOT NULL,
     lieu VARCHAR(300) NOT NULL,
+    image_url VARCHAR(1024),
     prix_ticket DECIMAL(10,2) NOT NULL CHECK (prix_ticket >= 0),
     nombre_tickets_total INTEGER NOT NULL CHECK (nombre_tickets_total > 0),
     tickets_vendus INTEGER DEFAULT 0 CHECK (tickets_vendus >= 0),
@@ -84,6 +85,19 @@ CREATE TABLE evenement (
     organisateur_id BIGINT NOT NULL REFERENCES organisateur(id) ON DELETE CASCADE
 );
 
+-- Table Catégories de Ticket (tiers)
+CREATE TABLE ticket_categorie (
+    id BIGSERIAL PRIMARY KEY,
+    nom VARCHAR(80) NOT NULL,
+    prix DECIMAL(10,2) NOT NULL CHECK (prix >= 0),
+    quantite_totale INTEGER NOT NULL CHECK (quantite_totale > 0),
+    quantite_vendue INTEGER NOT NULL DEFAULT 0 CHECK (quantite_vendue >= 0),
+    quantite_disponible INTEGER NOT NULL CHECK (quantite_disponible >= 0),
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_modification TIMESTAMP,
+    evenement_id BIGINT NOT NULL REFERENCES evenement(id) ON DELETE CASCADE
+);
+
 -- Table Achat (créée avant Ticket pour éviter les dépendances circulaires)
 CREATE TABLE achat (
     id BIGSERIAL PRIMARY KEY,
@@ -92,7 +106,8 @@ CREATE TABLE achat (
     date_achat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     statut_paiement VARCHAR(20) NOT NULL DEFAULT 'EN_ATTENTE' CHECK (statut_paiement IN ('EN_ATTENTE', 'PAYE', 'ANNULE', 'REMBOURSE')),
     client_id BIGINT NOT NULL REFERENCES client(id) ON DELETE CASCADE,
-    evenement_id BIGINT NOT NULL REFERENCES evenement(id) ON DELETE CASCADE
+    evenement_id BIGINT NOT NULL REFERENCES evenement(id) ON DELETE CASCADE,
+    categorie_id BIGINT REFERENCES ticket_categorie(id) ON DELETE SET NULL
 );
 
 -- Table Ticket
@@ -102,22 +117,27 @@ CREATE TABLE ticket (
     statut VARCHAR(20) NOT NULL DEFAULT 'DISPONIBLE' CHECK (statut IN ('DISPONIBLE', 'VENDU', 'UTILISE', 'ANNULE')),
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_achat TIMESTAMP,
+    prix_vente DECIMAL(10,2),
     evenement_id BIGINT NOT NULL REFERENCES evenement(id) ON DELETE CASCADE,
     client_id BIGINT REFERENCES client(id) ON DELETE SET NULL,
-    achat_id BIGINT REFERENCES achat(id) ON DELETE SET NULL
+    achat_id BIGINT REFERENCES achat(id) ON DELETE SET NULL,
+    categorie_id BIGINT REFERENCES ticket_categorie(id) ON DELETE SET NULL
 );
 
 -- Index pour les performances sur les nouvelles tables
 CREATE INDEX idx_evenement_organisateur ON evenement(organisateur_id);
 CREATE INDEX idx_evenement_date ON evenement(date_evenement);
 CREATE INDEX idx_evenement_statut ON evenement(statut);
+CREATE INDEX idx_ticket_categorie_evenement ON ticket_categorie(evenement_id);
 CREATE INDEX idx_ticket_evenement ON ticket(evenement_id);
 CREATE INDEX idx_ticket_client ON ticket(client_id);
 CREATE INDEX idx_ticket_code_qr ON ticket(code_qr);
 CREATE INDEX idx_ticket_statut ON ticket(statut);
+CREATE INDEX idx_ticket_categorie ON ticket(categorie_id);
 CREATE INDEX idx_achat_client ON achat(client_id);
 CREATE INDEX idx_achat_evenement ON achat(evenement_id);
 CREATE INDEX idx_achat_statut ON achat(statut_paiement);
+CREATE INDEX idx_achat_categorie ON achat(categorie_id);
 
 -- Contraintes de cohérence
 ALTER TABLE evenement ADD CONSTRAINT chk_tickets_coherence CHECK (tickets_disponibles = nombre_tickets_total - tickets_vendus);

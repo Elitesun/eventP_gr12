@@ -3,7 +3,10 @@ package entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.List;
@@ -15,13 +18,17 @@ import java.util.ArrayList;
  */
 @Entity
 @Table(name = "achat")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"client", "evenement", "ticketCategorie", "tickets"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Achat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @DecimalMin(value = "0.0", message = "Le montant total ne peut pas être négatif")
@@ -48,6 +55,10 @@ public class Achat {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evenement_id", nullable = false)
     private Evenement evenement;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categorie_id")
+    private TicketCategorie ticketCategorie;
 
     @OneToMany(mappedBy = "achat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
@@ -96,7 +107,16 @@ public class Achat {
      * Calcule le montant total basé sur les tickets
      */
     public void calculerMontantTotal() {
-        if (evenement != null && nombreTickets != null) {
+        if (nombreTickets == null) {
+            return;
+        }
+
+        if (ticketCategorie != null && ticketCategorie.getPrix() != null) {
+            this.montantTotal = ticketCategorie.getPrix() * nombreTickets;
+            return;
+        }
+
+        if (evenement != null && evenement.getPrixTicket() != null) {
             this.montantTotal = evenement.getPrixTicket() * nombreTickets;
         }
     }

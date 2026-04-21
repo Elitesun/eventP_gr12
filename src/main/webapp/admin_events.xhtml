@@ -1,206 +1,381 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="jakarta.faces.html"
-                xmlns:f="jakarta.faces.core"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:ui="jakarta.faces.facelets"
-                template="/WEB-INF/template.xhtml">
-    <ui:define name="pageTitle">Gestion des Événements</ui:define>
-    <ui:define name="content">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h1 class="mb-4">
-                                <i class="fas fa-calendar-alt"></i>
-                                Gestion des Événements
-                            </h1>
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="jakarta.faces.html"
+  xmlns:f="jakarta.faces.core"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:ui="jakarta.faces.facelets"
+  template="/WEB-INF/template.xhtml"
+>
+  <ui:define name="pageTitle">Gestion des Événements</ui:define>
+  <ui:define name="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="mb-4">
+            <i class="fas fa-calendar-alt"></i>
+            Gestion des Événements
+          </h1>
 
-                            <!-- Messages -->
-                            <p:messages id="messages" showDetail="true" showSummary="false" closable="true"/>
+          <!-- Messages -->
+          <p:messages
+            id="messages"
+            showDetail="true"
+            showSummary="false"
+            closable="true"
+          />
 
-                            <!-- Bouton pour créer un nouvel événement -->
-                            <h:form id="createButtonForm">
-                                <div class="mb-3">
-                                    <p:commandButton value="Créer un nouvel événement"
-                                                   icon="fas fa-plus"
-                                                   action="#{evenementController.preparerCreation}"
-                                                   update="@form"
-                                                   styleClass="btn btn-primary"/>
-                                </div>
-                            </h:form>
+          <!-- Bouton pour créer un nouvel événement -->
+          <h:form id="createButtonForm">
+            <div class="mb-3">
+              <p:commandButton
+                value="Créer un nouvel événement"
+                icon="fas fa-plus"
+                action="#{evenementController.preparerCreation}"
+                update=":formPanel,:messages"
+                styleClass="btn btn-primary"
+              />
+            </div>
+          </h:form>
 
-                            <!-- Formulaire de création/modification -->
-                            <p:panel id="formPanel" header="#{evenementController.modeCreation ? 'Créer un événement' : 'Modifier un événement'}"
-                                    styleClass="mb-4" collapsed="false">
-
-                                <h:form id="evenementForm">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="titre">Titre *</label>
-                                                <p:inputText id="titre"
-                                                           value="#{evenementController.nouvelEvenement.titre}"
-                                                           required="true"
-                                                           maxlength="200"
-                                                           styleClass="form-control"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="lieu">Lieu *</label>
-                                                <p:inputText id="lieu"
-                                                           value="#{evenementController.nouvelEvenement.lieu}"
-                                                           required="true"
-                                                           maxlength="300"
-                                                           styleClass="form-control"/>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="description">Description *</label>
-                                        <p:inputTextarea id="description"
-                                                       value="#{evenementController.nouvelEvenement.description}"
-                                                       required="true"
-                                                       rows="4"
-                                                       maxlength="2000"
-                                                       styleClass="form-control"/>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="dateEvenement">Date de l'événement *</label>
-                                                <p:calendar id="dateEvenement"
-                                                          value="#{evenementController.nouvelEvenement.dateEvenement}"
-                                                          required="true"
-                                                          pattern="dd/MM/yyyy HH:mm"
-                                                          showTime="true"
-                                                          styleClass="form-control"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="prixTicket">Prix par ticket (€) *</label>
-                                                <p:inputNumber id="prixTicket"
-                                                             value="#{evenementController.nouvelEvenement.prixTicket}"
-                                                             required="true"
-                                                             minValue="0"
-                                                             maxValue="10000"
-                                                             styleClass="form-control"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="nombreTickets">Nombre de tickets *</label>
-                                                <p:inputNumber id="nombreTickets"
-                                                             value="#{evenementController.nouvelEvenement.nombreTicketsTotal}"
-                                                             required="true"
-                                                             minValue="1"
-                                                             maxValue="100000"
-                                                             styleClass="form-control"/>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <p:commandButton value="#{evenementController.modeCreation ? 'Créer l\'événement' : 'Modifier l\'événement'}"
-                                                       icon="fas fa-save"
-                                                       action="#{evenementController.sauvegarderEvenement}"
-                                                       update="@form,messages,:eventsForm:evenementsTable"
-                                                       styleClass="btn btn-success"/>
-                                        <p:commandButton value="Annuler"
-                                                       icon="fas fa-times"
-                                                       action="#{evenementController.preparerCreation}"
-                                                       update="@form"
-                                                       styleClass="btn btn-secondary ml-2"/>
-                                    </div>
-                                </h:form>
-                            </p:panel>
-
-                            <!-- Liste des événements -->
-                            <h:form id="eventsForm">
-                                <p:dataTable id="evenementsTable"
-                                           value="#{evenementController.evenements}"
-                                           var="evenement"
-                                           paginator="true"
-                                           rows="10"
-                                           paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
-                                           currentPageReportTemplate="Événements {startRecord}-{endRecord} sur {totalRecords}"
-                                           emptyMessage="Aucun événement trouvé">
-
-                                <p:column headerText="Titre" sortBy="#{evenement.titre}">
-                                    <h:outputText value="#{evenement.titre}"/>
-                                </p:column>
-
-                                <p:column headerText="Date" sortBy="#{evenement.dateEvenement}">
-                                    <h:outputText value="#{evenement.dateEvenement}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
-                                    </h:outputText>
-                                </p:column>
-
-                                <p:column headerText="Lieu">
-                                    <h:outputText value="#{evenement.lieu}"/>
-                                </p:column>
-
-                                <p:column headerText="Prix">
-                                    <h:outputText value="#{evenement.prixTicket} €"/>
-                                </p:column>
-
-                                <p:column headerText="Tickets">
-                                    <span class="badge badge-info">
-                                        #{evenement.ticketsVendus}/#{evenement.nombreTicketsTotal}
-                                    </span>
-                                </p:column>
-
-                                <p:column headerText="Statut">
-                                    <p:badge value="#{evenement.statut.name()}"
-                                           severity="#{evenement.statut.name() eq 'PUBLIE' ? 'success' :
-                                                      evenement.statut.name() eq 'BROUILLON' ? 'info' :
-                                                      evenement.statut.name() eq 'ANNULE' ? 'danger' : 'secondary'}"/>
-                                </p:column>
-
-                                <p:column headerText="Actions" style="width: 200px">
-                                    <div class="btn-group">
-                                        <p:commandButton value="Modifier"
-                                                       icon="fas fa-edit"
-                                                       action="#{evenementController.preparerModification(evenement)}"
-                                                       update="@form,messages"
-                                                       styleClass="btn btn-sm btn-warning"/>
-
-                                        <p:commandButton value="Publier"
-                                                       icon="fas fa-check"
-                                                       action="#{evenementController.publierEvenement(evenement)}"
-                                                       update="evenementsTable,messages"
-                                                       styleClass="btn btn-sm btn-success"
-                                                       rendered="#{evenement.statut.name() eq 'BROUILLON'}"/>
-
-                                        <p:commandButton value="Annuler"
-                                                       icon="fas fa-ban"
-                                                       action="#{evenementController.annulerEvenement(evenement)}"
-                                                       update="evenementsTable,messages"
-                                                       styleClass="btn btn-sm btn-danger"
-                                                       rendered="#{evenement.statut.name() eq 'PUBLIE'}"/>
-
-                                        <p:commandButton value="Supprimer"
-                                                       icon="fas fa-trash"
-                                                       action="#{evenementController.supprimerEvenement(evenement)}"
-                                                       update="evenementsTable,messages"
-                                                       styleClass="btn btn-sm btn-danger"
-                                                       rendered="#{evenement.statut.name() eq 'BROUILLON'}"/>
-                                    </div>
-                                </p:column>
-                            </p:dataTable>
-                            </h:form>
-
-                            <h:panelGroup rendered="#{empty evenementController.evenements}">
-                                <div class="alert alert-info mt-4">
-                                    Aucun événement défini pour le moment. Utilisez le formulaire ci-dessus pour en ajouter un.
-                                </div>
-                            </h:panelGroup>
-                        </div>
-                    </div>
+          <!-- Formulaire de création/modification -->
+          <p:panel
+            id="formPanel"
+            header="#{evenementController.modeCreation ? 'Créer un événement' : 'Modifier un événement'}"
+            styleClass="mb-4"
+            collapsed="false"
+          >
+            <h:form id="evenementForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="titre">Titre *</label>
+                    <p:inputText
+                      id="titre"
+                      value="#{evenementController.nouvelEvenement.titre}"
+                      required="true"
+                      requiredMessage="Le titre est obligatoire"
+                      validatorMessage="Le titre doit contenir au moins 3 caractères"
+                      maxlength="200"
+                      styleClass="form-control"
+                    >
+                      <f:validateLength minimum="3" />
+                    </p:inputText>
+                    <p:message for="titre" display="text" />
+                  </div>
                 </div>
-            </ui:define>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="lieu">Lieu *</label>
+                    <p:inputText
+                      id="lieu"
+                      value="#{evenementController.nouvelEvenement.lieu}"
+                      required="true"
+                      requiredMessage="Le lieu est obligatoire"
+                      maxlength="300"
+                      styleClass="form-control"
+                    />
+                    <p:message for="lieu" display="text" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label class="d-block">Image de couverture *</label>
+                    <div class="d-flex align-items-center gap-3">
+                      <p:fileUpload
+                        listener="#{evenementController.handleFileUpload}"
+                        mode="advanced"
+                        auto="true"
+                        update="@this, messages, imagePreview"
+                        allowTypes="/(\.|\/)(gif|jpe?g|png)$/"
+                        maxFileSize="1000000"
+                        label="Choisir une photo"
+                        styleClass="mr-3"
+                      />
+
+                      <h:panelGroup id="imagePreview">
+                        <h:graphicImage
+                          value="#{evenementController.nouvelEvenement.imageUrl}"
+                          style="
+                            max-width: 100px;
+                            max-height: 60px;
+                            border-radius: 4px;
+                          "
+                          rendered="#{not empty evenementController.nouvelEvenement.imageUrl}"
+                        />
+                      </h:panelGroup>
+                    </div>
+                    <p:inputText
+                      id="imageUrl"
+                      value="#{evenementController.nouvelEvenement.imageUrl}"
+                      required="true"
+                      requiredMessage="Une image est obligatoire (téléchargez une photo)"
+                      readonly="true"
+                      style="display: none"
+                    />
+                    <p:message for="imageUrl" display="text" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="description">Description *</label>
+                <p:inputTextarea
+                  id="description"
+                  value="#{evenementController.nouvelEvenement.description}"
+                  required="true"
+                  requiredMessage="La description est obligatoire"
+                  rows="4"
+                  maxlength="2000"
+                  styleClass="form-control"
+                />
+                <p:message for="description" display="text" />
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="dateEvenement">Date de l'événement *</label>
+                    <p:calendar
+                      id="dateEvenement"
+                      value="#{evenementController.nouvelEvenement.dateEvenement}"
+                      required="true"
+                      requiredMessage="La date est obligatoire"
+                      pattern="dd/MM/yyyy HH:mm"
+                      showTime="true"
+                      mindate="#{evenementController.todayDate}"
+                      styleClass="form-control"
+                    />
+                    <p:message for="dateEvenement" display="text" />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Monnaie</label>
+                    <p:inputText
+                      value="Francs CFA (XOF)"
+                      styleClass="form-control"
+                      readonly="true"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Total calculé automatiquement</label>
+                    <p:inputText
+                      value="Selon catégories tarifaires"
+                      styleClass="form-control"
+                      readonly="true"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="card mt-3 mb-3"
+                style="border: 1px solid #e5e7eb; border-radius: 8px"
+              >
+                <div class="card-body">
+                  <h5 class="mb-3">Catégories fixes</h5>
+
+                  <div class="row mb-2">
+                    <div class="col-md-3">
+                      <label>Catégorie</label>
+                      <p:inputText
+                        value="Standard"
+                        readonly="true"
+                        styleClass="form-control"
+                      />
+                    </div>
+                    <div class="col-md-4">
+                      <label for="standardPrix">Prix Standard (XOF) *</label>
+                      <p:inputNumber
+                        id="standardPrix"
+                        value="#{evenementController.categoriesSaisie[0].prix}"
+                        required="true"
+                        requiredMessage="Le prix Standard est obligatoire"
+                        minValue="0"
+                        decimalPlaces="0"
+                        styleClass="form-control"
+                      />
+                      <p:message for="standardPrix" display="text" />
+                    </div>
+                    <div class="col-md-4">
+                      <label for="standardQt">Quantité Standard *</label>
+                      <p:inputNumber
+                        id="standardQt"
+                        value="#{evenementController.categoriesSaisie[0].quantiteTotale}"
+                        required="true"
+                        requiredMessage="La quantité Standard est obligatoire"
+                        minValue="1"
+                        decimalPlaces="0"
+                        styleClass="form-control"
+                      />
+                      <p:message for="standardQt" display="text" />
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label>Catégorie</label>
+                      <p:inputText
+                        value="VIP"
+                        readonly="true"
+                        styleClass="form-control"
+                      />
+                    </div>
+                    <div class="col-md-4">
+                      <label for="vipPrix">Prix VIP (XOF) *</label>
+                      <p:inputNumber
+                        id="vipPrix"
+                        value="#{evenementController.categoriesSaisie[1].prix}"
+                        required="true"
+                        requiredMessage="Le prix VIP est obligatoire"
+                        minValue="0"
+                        decimalPlaces="0"
+                        styleClass="form-control"
+                      />
+                      <p:message for="vipPrix" display="text" />
+                    </div>
+                    <div class="col-md-4">
+                      <label for="vipQt">Quantité VIP *</label>
+                      <p:inputNumber
+                        id="vipQt"
+                        value="#{evenementController.categoriesSaisie[1].quantiteTotale}"
+                        required="true"
+                        requiredMessage="La quantité VIP est obligatoire"
+                        minValue="1"
+                        decimalPlaces="0"
+                        styleClass="form-control"
+                      />
+                      <p:message for="vipQt" display="text" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <p:commandButton
+                  value="#{evenementController.modeCreation ? 'Créer l\'événement' : 'Modifier l\'événement'}"
+                  icon="fas fa-save"
+                  action="#{evenementController.sauvegarderEvenement}"
+                  update="@form,messages,:eventsForm:evenementsTable"
+                  styleClass="btn btn-success"
+                />
+                <p:commandButton
+                  value="Annuler"
+                  icon="fas fa-times"
+                  action="#{evenementController.preparerCreation}"
+                  update="@form"
+                  styleClass="btn btn-secondary ml-2"
+                />
+              </div>
+            </h:form>
+          </p:panel>
+
+          <!-- Liste des événements -->
+          <h:form id="eventsForm">
+            <p:dataTable
+              id="evenementsTable"
+              value="#{evenementController.evenements}"
+              var="evenement"
+              paginator="true"
+              rows="10"
+              paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+              currentPageReportTemplate="Événements {startRecord}-{endRecord} sur {totalRecords}"
+              emptyMessage="Aucun événement trouvé"
+            >
+              <p:column headerText="Titre" sortBy="#{evenement.titre}">
+                <h:outputText value="#{evenement.titre}" />
+              </p:column>
+
+              <p:column headerText="Date" sortBy="#{evenement.dateEvenement}">
+                <h:outputText value="#{evenement.dateEvenement}">
+                  <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                </h:outputText>
+              </p:column>
+
+              <p:column headerText="Lieu">
+                <h:outputText value="#{evenement.lieu}" />
+              </p:column>
+
+              <p:column headerText="Prix">
+                <h:outputText value="#{evenement.prixAffichage}">
+                  <f:convertNumber maxFractionDigits="0" />
+                </h:outputText>
+                <h:outputText value=" XOF" />
+              </p:column>
+
+              <p:column headerText="Tickets">
+                <span class="badge badge-info">
+                  #{evenement.ticketsVendus}/#{evenement.nombreTicketsTotal}
+                </span>
+              </p:column>
+
+              <p:column headerText="Statut">
+                <p:badge
+                  value="#{evenement.statut.name()}"
+                  severity="#{evenement.statut.name() eq 'PUBLIE' ? 'success' :
+                                                      evenement.statut.name() eq 'BROUILLON' ? 'info' :
+                                                      evenement.statut.name() eq 'ANNULE' ? 'danger' : 'secondary'}"
+                />
+              </p:column>
+
+              <p:column headerText="Actions" style="width: 200px">
+                <div class="btn-group">
+                  <p:commandButton
+                    value="Modifier"
+                    icon="fas fa-edit"
+                    action="#{evenementController.preparerModificationParId(evenement.id)}"
+                    process="@this"
+                    update=":formPanel,:messages"
+                    oncomplete="var el=document.getElementById('evenementForm:titre'); if(el){el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus();}"
+                    styleClass="btn btn-sm btn-warning"
+                  />
+
+                  <p:commandButton
+                    value="Publier"
+                    icon="fas fa-check"
+                    action="#{evenementController.publierEvenement(evenement)}"
+                    update=":eventsForm:evenementsTable,:messages"
+                    styleClass="btn btn-sm btn-success"
+                    rendered="#{evenement.statut.name() eq 'BROUILLON'}"
+                  />
+
+                  <p:commandButton
+                    value="Annuler"
+                    icon="fas fa-ban"
+                    action="#{evenementController.annulerEvenement(evenement)}"
+                    update=":eventsForm:evenementsTable,:messages"
+                    styleClass="btn btn-sm btn-danger"
+                    rendered="#{evenement.statut.name() eq 'PUBLIE'}"
+                  />
+
+                  <p:commandButton
+                    value="Supprimer"
+                    icon="fas fa-trash"
+                    action="#{evenementController.supprimerEvenement(evenement)}"
+                    update=":eventsForm:evenementsTable,:messages"
+                    styleClass="btn btn-sm btn-danger"
+                    rendered="#{evenement.statut.name() eq 'BROUILLON'}"
+                  />
+                </div>
+              </p:column>
+            </p:dataTable>
+          </h:form>
+
+          <h:panelGroup rendered="#{empty evenementController.evenements}">
+            <div class="alert alert-info mt-4">
+              Aucun événement défini pour le moment. Utilisez le formulaire
+              ci-dessus pour en ajouter un.
+            </div>
+          </h:panelGroup>
+        </div>
+      </div>
+    </div>
+  </ui:define>
 </ui:composition>

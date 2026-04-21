@@ -3,7 +3,7 @@ WORKDIR /build
 
 COPY pom.xml ./
 COPY src ./src
-RUN mvn -B -DskipTests clean package
+RUN mvn -B -DskipTests -Dmaven.wagon.http.retryHandler.count=5 -Dmaven.wagon.http.retryHandler.requestSentEnabled=true clean package
 
 FROM payara/server-full:latest
 

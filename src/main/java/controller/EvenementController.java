@@ -3,6 +3,7 @@ package controller;
 import entities.Evenement;
 import entities.Organisateur;
 import entities.Personne;
+import entities.TicketCategorie;
 import service.EvenementService;
 import service.PersonneService;
 import jakarta.annotation.PostConstruct;
@@ -12,8 +13,15 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.file.UploadedFile;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import java.util.Base64;
+import java.util.stream.Collectors;
 
 /**
  * Contrôleur pour la gestion des événements par l'admin
@@ -34,16 +42,22 @@ private SecurityHelper securityHelper;
 @Inject
 private PersonneService personneService;
 
+    @Inject
+    private NotificationController notificationController;
+
 // Propriétés pour la création/modification d'événement
     private Evenement nouvelEvenement;
     private Evenement evenementSelectionne;
     private List<Evenement> evenements;
+    private List<TicketCategorie> categoriesSaisie;
     private String message;
     private boolean modeCreation = true;
+    private Date todayDate = new Date();
 
     @PostConstruct
     public void init() {
         nouvelEvenement = new Evenement();
+        initialiserCategoriesFixes();
         chargerEvenements();
     }
 
@@ -52,7 +66,12 @@ private PersonneService personneService;
      */
     public void chargerEvenements() {
         try {
-            evenements = evenementService.trouverTousEvenements();
+            Organisateur organisateurConnecte = getOrganisateurConnecte();
+            if (organisateurConnecte == null) {
+                evenements = new ArrayList<>();
+                return;
+            }
+            evenements = evenementService.trouverEvenementsParOrganisateur(organisateurConnecte);
         } catch (Exception e) {
             message = "Erreur lors du chargement des événements: " + e.getMessage();
         }
@@ -65,6 +84,7 @@ private PersonneService personneService;
         modeCreation = true;
         nouvelEvenement = new Evenement();
         nouvelEvenement.setDateCreation(new Date());
+        initialiserCategoriesFixes();
         message = null;
     }
 
@@ -72,18 +92,64 @@ private PersonneService personneService;
      * Prépare la modification d'un événement
      */
     public void preparerModification(Evenement evenement) {
+        if (evenement == null || evenement.getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Événement invalide."));
+            return;
+        }
+        preparerModificationParId(evenement.getId());
+    }
+
+    public void preparerModificationParId(Long evenementId) {
+        if (evenementId == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Événement invalide."));
+            return;
+        }
+
         modeCreation = false;
-        evenementSelectionne = evenement;
+        evenementSelectionne = evenementService.trouverEvenementAvecCategories(evenementId);
+        if (evenementSelectionne == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Événement introuvable."));
+            return;
+        }
+
+        if (!estProprietaire(evenementSelectionne)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Accès refusé", "Vous ne pouvez modifier que vos propres événements."));
+            modeCreation = true;
+            return;
+        }
+
         nouvelEvenement = new Evenement();
-        nouvelEvenement.setId(evenement.getId());
-        nouvelEvenement.setTitre(evenement.getTitre());
-        nouvelEvenement.setDescription(evenement.getDescription());
-        nouvelEvenement.setDateEvenement(evenement.getDateEvenement());
-        nouvelEvenement.setLieu(evenement.getLieu());
-        nouvelEvenement.setPrixTicket(evenement.getPrixTicket());
-        nouvelEvenement.setNombreTicketsTotal(evenement.getNombreTicketsTotal());
-        nouvelEvenement.setStatut(evenement.getStatut());
-        nouvelEvenement.setOrganisateur(evenement.getOrganisateur());
+        nouvelEvenement.setId(evenementSelectionne.getId());
+        nouvelEvenement.setTitre(evenementSelectionne.getTitre());
+        nouvelEvenement.setDescription(evenementSelectionne.getDescription());
+        nouvelEvenement.setDateEvenement(evenementSelectionne.getDateEvenement());
+        nouvelEvenement.setLieu(evenementSelectionne.getLieu());
+        nouvelEvenement.setImageUrl(evenementSelectionne.getImageUrl());
+        nouvelEvenement.setPrixTicket(evenementSelectionne.getPrixTicket());
+        nouvelEvenement.setNombreTicketsTotal(evenementSelectionne.getNombreTicketsTotal());
+        nouvelEvenement.setStatut(evenementSelectionne.getStatut());
+        nouvelEvenement.setOrganisateur(evenementSelectionne.getOrganisateur());
+
+        initialiserCategoriesFixes();
+        if (evenementSelectionne.getCategories() != null && !evenementSelectionne.getCategories().isEmpty()) {
+            for (TicketCategorie categorie : evenementSelectionne.getCategories()) {
+                if (categorie == null || categorie.getNom() == null) {
+                    continue;
+                }
+                String nom = categorie.getNom().trim();
+                if (!"Standard".equalsIgnoreCase(nom) && !"VIP".equalsIgnoreCase(nom)) {
+                    continue;
+                }
+                TicketCategorie cible = "VIP".equalsIgnoreCase(nom) ? categoriesSaisie.get(1) : categoriesSaisie.get(0);
+                cible.setPrix(categorie.getPrix());
+                cible.setQuantiteTotale(categorie.getQuantiteTotale());
+            }
+        }
+
         message = null;
     }
 
@@ -107,13 +173,34 @@ private PersonneService personneService;
 
             // Enhanced validation
             if (nouvelEvenement.getTitre() == null || nouvelEvenement.getTitre().trim().isEmpty() ||
-                nouvelEvenement.getNombreTicketsTotal() == null || nouvelEvenement.getNombreTicketsTotal() <= 0 ||
-                nouvelEvenement.getPrixTicket() == null || nouvelEvenement.getPrixTicket() < 0 ||
+                nouvelEvenement.getDescription() == null || nouvelEvenement.getDescription().trim().isEmpty() ||
                 nouvelEvenement.getDateEvenement() == null || nouvelEvenement.getLieu() == null || nouvelEvenement.getLieu().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Champs obligatoires invalides."));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les champs marqués d'une étoile (*) sont obligatoires."));
                 return;
             }
+
+            List<TicketCategorie> categoriesValides = extraireCategoriesValides();
+            if (categoriesValides.size() != 2) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Les catégories Standard et VIP sont obligatoires avec un prix et une quantité valides."));
+                return;
+            }
+
+            int totalTickets = 0;
+            double prixMin = Double.MAX_VALUE;
+            for (TicketCategorie categorie : categoriesValides) {
+                totalTickets += categorie.getQuantiteTotale();
+                if (categorie.getPrix() < prixMin) {
+                    prixMin = categorie.getPrix();
+                }
+            }
+
+            nouvelEvenement.setPrixTicket(prixMin == Double.MAX_VALUE ? 0.0 : prixMin);
+            nouvelEvenement.setNombreTicketsTotal(totalTickets);
+            nouvelEvenement.setTicketsVendus(0);
+            nouvelEvenement.setTicketsDisponibles(totalTickets);
+            nouvelEvenement.setCategories(categoriesValides);
 
             // Ensure managed organisateur
             Personne userConnecte = authController.getUtilisateurConnecte();
@@ -130,34 +217,51 @@ private PersonneService personneService;
             }
             nouvelEvenement.setOrganisateur((Organisateur) managedUser);
 
-            System.out.println("[EvenementController] sauvegarderEvenement appelé (modeCreation=" + modeCreation +
-                               ") | organisateur.id=" + nouvelEvenement.getOrganisateur().getId() +
-                               " | ticketsTotal=" + nouvelEvenement.getNombreTicketsTotal() +
-                               " | titre=" + nouvelEvenement.getTitre());
+
 
             if (modeCreation) {
                 // Créer un nouvel événement
-                nouvelEvenement.setOrganisateur((Organisateur) authController.getUtilisateurConnecte());
                 Evenement created = evenementService.creerEvenement(nouvelEvenement);
-                System.out.println("[EvenementController] événement créé id=" + created.getId());
+
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Événement créé avec succès !"));
+                notificationController.success("Événement créé", "Votre événement \"" + created.getTitre() + "\" est prêt à être publié.");
             } else {
                 // Modifier un événement existant
+                Organisateur organisateurConnecte = getOrganisateurConnecte();
+                if (organisateurConnecte == null) {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Accès refusé", "Vous ne pouvez modifier que vos propres événements."));
+                    return;
+                }
                 nouvelEvenement.setDateModification(new Date());
-                Evenement updated = evenementService.mettreAJourEvenement(nouvelEvenement);
-                System.out.println("[EvenementController] événement modifié id=" + updated.getId());
+                Evenement updated = evenementService.mettreAJourEvenement(organisateurConnecte.getId(), nouvelEvenement);
+
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Événement modifié avec succès !"));
+                notificationController.info("Événement mis à jour", "Les changements sur \"" + updated.getTitre() + "\" ont été enregistrés.");
             }
 
             chargerEvenements();
             preparerCreation();
 
+        } catch (ConstraintViolationException cve) {
+            String violations = cve.getConstraintViolations().stream()
+                    .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                    .collect(Collectors.joining(", "));
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur de validation", violations));
         } catch (Exception e) {
             e.printStackTrace();
+            String detail = e.getMessage();
+            if (e.getCause() != null && e.getCause() instanceof ConstraintViolationException) {
+                ConstraintViolationException cve = (ConstraintViolationException) e.getCause();
+                detail = cve.getConstraintViolations().stream()
+                    .map(v -> v.getMessage())
+                    .collect(Collectors.joining(", "));
+            }
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur lors de la sauvegarde", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur lors de la sauvegarde", detail));
         }
     }
 
@@ -166,8 +270,20 @@ private PersonneService personneService;
      */
     public void publierEvenement(Evenement evenement) {
         try {
-            evenementService.publierEvenement(evenement.getId());
+            if (evenement == null || evenement.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Événement invalide."));
+                return;
+            }
+            Organisateur organisateurConnecte = getOrganisateurConnecte();
+            if (organisateurConnecte == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Accès refusé", "Vous ne pouvez publier que vos propres événements."));
+                return;
+            }
+            evenementService.publierEvenement(organisateurConnecte.getId(), evenement.getId());
             message = "Événement publié avec succès !";
+            notificationController.success("Événement publié", "\"" + evenement.getTitre() + "\" est maintenant visible publiquement.");
             chargerEvenements();
         } catch (Exception e) {
             message = "Erreur lors de la publication: " + e.getMessage();
@@ -179,8 +295,20 @@ private PersonneService personneService;
      */
     public void annulerEvenement(Evenement evenement) {
         try {
-            evenementService.annulerEvenement(evenement.getId());
+            if (evenement == null || evenement.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Événement invalide."));
+                return;
+            }
+            Organisateur organisateurConnecte = getOrganisateurConnecte();
+            if (organisateurConnecte == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Accès refusé", "Vous ne pouvez annuler que vos propres événements."));
+                return;
+            }
+            evenementService.annulerEvenement(organisateurConnecte.getId(), evenement.getId());
             message = "Événement annulé avec succès !";
+            notificationController.warning("Événement annulé", "\"" + evenement.getTitre() + "\" a été annulé.");
             chargerEvenements();
         } catch (Exception e) {
             message = "Erreur lors de l'annulation: " + e.getMessage();
@@ -192,12 +320,129 @@ private PersonneService personneService;
      */
     public void supprimerEvenement(Evenement evenement) {
         try {
-            evenementService.supprimerEvenement(evenement.getId());
+            if (evenement == null || evenement.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Événement invalide."));
+                return;
+            }
+            Organisateur organisateurConnecte = getOrganisateurConnecte();
+            if (organisateurConnecte == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Accès refusé", "Vous ne pouvez supprimer que vos propres événements."));
+                return;
+            }
+            evenementService.supprimerEvenement(organisateurConnecte.getId(), evenement.getId());
             message = "Événement supprimé avec succès !";
+            notificationController.warning("Événement supprimé", "\"" + evenement.getTitre() + "\" a été supprimé.");
             chargerEvenements();
         } catch (Exception e) {
             message = "Erreur lors de la suppression: " + e.getMessage();
         }
+    }
+
+    private void initialiserCategoriesFixes() {
+        categoriesSaisie = new ArrayList<>();
+
+        TicketCategorie standard = new TicketCategorie();
+        standard.setNom("Standard");
+        standard.setPrix(0.0);
+        standard.setQuantiteTotale(1);
+        categoriesSaisie.add(standard);
+
+        TicketCategorie vip = new TicketCategorie();
+        vip.setNom("VIP");
+        vip.setPrix(0.0);
+        vip.setQuantiteTotale(1);
+        categoriesSaisie.add(vip);
+    }
+
+    private List<TicketCategorie> extraireCategoriesValides() {
+        List<TicketCategorie> valides = new ArrayList<>();
+        if (categoriesSaisie == null) {
+            return valides;
+        }
+
+        for (TicketCategorie categorie : categoriesSaisie) {
+            if (categorie == null) {
+                continue;
+            }
+            if (categorie.getNom() == null || categorie.getNom().trim().isEmpty()) {
+                continue;
+            }
+            if (categorie.getPrix() == null || categorie.getPrix() < 0) {
+                continue;
+            }
+            if (categorie.getQuantiteTotale() == null || categorie.getQuantiteTotale() <= 0) {
+                continue;
+            }
+
+            TicketCategorie copie = new TicketCategorie();
+            String nomNormalise = categorie.getNom().trim();
+            if (!"Standard".equalsIgnoreCase(nomNormalise) && !"VIP".equalsIgnoreCase(nomNormalise)) {
+                continue;
+            }
+            copie.setNom("VIP".equalsIgnoreCase(nomNormalise) ? "VIP" : "Standard");
+            copie.setPrix(categorie.getPrix());
+            copie.setQuantiteTotale(categorie.getQuantiteTotale());
+            copie.setQuantiteVendue(0);
+            copie.setQuantiteDisponible(categorie.getQuantiteTotale());
+            valides.add(copie);
+        }
+
+        if (valides.size() == 2) {
+            boolean hasStandard = valides.stream().anyMatch(c -> "Standard".equals(c.getNom()));
+            boolean hasVip = valides.stream().anyMatch(c -> "VIP".equals(c.getNom()));
+            if (!(hasStandard && hasVip)) {
+                valides.clear();
+            }
+        }
+
+        return valides;
+    }
+
+    public void handleFileUpload(FileUploadEvent event) {
+        try {
+            UploadedFile file = event.getFile();
+            if (file != null && file.getContent() != null) {
+                byte[] contents = file.getContent();
+                String base64Content = Base64.getEncoder().encodeToString(contents);
+                String mimeType = file.getContentType();
+                String dataUrl = "data:" + mimeType + ";base64," + base64Content;
+                
+                if (modeCreation) {
+                    nouvelEvenement.setImageUrl(dataUrl);
+                } else {
+                    nouvelEvenement.setImageUrl(dataUrl);
+                }
+                
+                FacesContext.getCurrentInstance().addMessage(null, 
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Image chargée: " + file.getFileName()));
+            }
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Erreur lors du chargement de l'image"));
+        }
+    }
+
+    private Organisateur getOrganisateurConnecte() {
+        Personne current = authController.getUtilisateurConnecte();
+        if (!(current instanceof Organisateur) || current.getId() == null) {
+            return null;
+        }
+        Personne managedUser = personneService.trouverParId(current.getId());
+        if (!(managedUser instanceof Organisateur)) {
+            return null;
+        }
+        return (Organisateur) managedUser;
+    }
+
+    private boolean estProprietaire(Evenement evenement) {
+        Organisateur organisateur = getOrganisateurConnecte();
+        return organisateur != null
+                && evenement != null
+                && evenement.getOrganisateur() != null
+                && evenement.getOrganisateur().getId() != null
+                && organisateur.getId().equals(evenement.getOrganisateur().getId());
     }
 
     // Getters et Setters
@@ -239,5 +484,20 @@ private PersonneService personneService;
 
     public void setModeCreation(boolean modeCreation) {
         this.modeCreation = modeCreation;
+    }
+
+    public List<TicketCategorie> getCategoriesSaisie() {
+        return categoriesSaisie;
+    }
+
+    public void setCategoriesSaisie(List<TicketCategorie> categoriesSaisie) {
+        this.categoriesSaisie = categoriesSaisie;
+    }
+    public Date getTodayDate() {
+        return todayDate;
+    }
+
+    public void setTodayDate(Date todayDate) {
+        this.todayDate = todayDate;
     }
 }

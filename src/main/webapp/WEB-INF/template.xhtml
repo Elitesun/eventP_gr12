@@ -7,7 +7,7 @@
       xmlns:ui="jakarta.faces.facelets">
     
     <h:head>
-        <title><ui:insert name="title">EventPlatform - Plateforme Événementielle</ui:insert></title>
+        <title><ui:insert name="title">GreenPulse Events - Découvrez les meilleurs événements</ui:insert></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         
         <!-- Bootstrap 5 CDN -->
@@ -26,19 +26,24 @@
         <!-- PrimeIcons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeicons@6.0.1/primeicons.css"/>
         
+        <!-- Google Fonts: Manrope -->
+        <link rel="preconnect" href="https://fonts.googleapis.com"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+        
         <!-- Page-specific CSS -->
         <ui:insert name="head"></ui:insert>
         
         <style>
-            /* EventPlatform Design System */
+            /* GreenPulse Events Design System */
             :root {
-                --eventplatform-blue: #0047FF;
-                --eventplatform-blue-dark: #0039CC;
-                --eventplatform-bg: #f4f7f9;
-                --eventplatform-white: #ffffff;
-                --eventplatform-border: #e5e7eb;
-                --eventplatform-text: #1a1a1a;
-                --eventplatform-text-muted: #6c757d;
+                --greenpulse-teal: #0f766e;
+                --greenpulse-teal-dark: #115e59;
+                --greenpulse-bg: #f4f7f9;
+                --greenpulse-white: #ffffff;
+                --greenpulse-border: #e5e7eb;
+                --greenpulse-text: #1a1a1a;
+                --greenpulse-text-muted: #6c757d;
                 --sidebar-width: 260px;
             }
             
@@ -48,11 +53,45 @@
             }
             
             body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-                background: var(--eventplatform-bg) !important;
+                font-family: 'Manrope', 'Segoe UI', sans-serif !important;
+                background: var(--greenpulse-bg) !important;
                 margin: 0;
                 padding: 0;
                 overflow-x: hidden;
+                color: var(--greenpulse-text);
+            }
+            
+            /* Bootstrap Overrides */
+            .btn-primary {
+                background-color: var(--greenpulse-teal) !important;
+                border-color: var(--greenpulse-teal) !important;
+                border-radius: 8px !important;
+                padding: 10px 20px !important;
+                font-weight: 600 !important;
+            }
+            .btn-primary:hover {
+                background-color: var(--greenpulse-teal-dark) !important;
+                border-color: var(--greenpulse-teal-dark) !important;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+            }
+            .btn-outline-primary {
+                color: var(--greenpulse-teal) !important;
+                border-color: var(--greenpulse-teal) !important;
+                border-radius: 8px !important;
+                padding: 10px 20px !important;
+                font-weight: 600 !important;
+            }
+            .btn-outline-primary:hover {
+                background-color: var(--greenpulse-teal) !important;
+                border-color: var(--greenpulse-teal) !important;
+                color: white !important;
+            }
+            .text-primary {
+                color: var(--greenpulse-teal) !important;
+            }
+            .bg-primary {
+                background-color: var(--greenpulse-teal) !important;
             }
             
             /* Layout Principal - STABLE */
@@ -65,7 +104,7 @@
             /* Sidebar Fixe - NE BOUGE JAMAIS */
             .sidebar {
                 width: var(--sidebar-width);
-                background: linear-gradient(135deg, #1a3a52 0%, #0f2438 100%);
+                background: linear-gradient(135deg, #134e4a 0%, #0f172a 100%);
                 color: white;
                 flex-shrink: 0;
                 flex-grow: 0;
@@ -84,7 +123,7 @@
             /* Contenu Principal */
             .main-content {
                 flex-grow: 1;
-                background: var(--eventplatform-bg);
+                background: var(--greenpulse-bg);
                 margin-left: var(--sidebar-width);
                 min-height: 100vh;
                 width: calc(100% - var(--sidebar-width));
@@ -121,7 +160,7 @@
             }
 
             .sidebar-header p {
-                color: rgba(255, 255, 255, 0.75);
+                color: #ffffff;
                 font-size: 11px;
                 margin: 5px 0 0 0;
                 text-transform: uppercase;
@@ -136,7 +175,7 @@
             
             .sidebar-menu-label {
                 padding: 8px 25px 6px 25px;
-                color: rgba(255, 255, 255, 0.85);
+                color: #ffffff;
                 font-size: 10px;
                 text-transform: uppercase;
                 letter-spacing: 1px;
@@ -211,8 +250,12 @@
                 position: relative !important;
             }
 
+            .sidebar-menu .ui-menuitem-text {
+                color: #ffffff !important;
+            }
+
             .sidebar-menu .ui-menuitem:hover > .ui-menuitem-link {
-                background: rgba(0, 71, 255, 0.2) !important;
+                background: rgba(15, 118, 110, 0.2) !important;
             }
 
             .sidebar-menu .ui-menuitem:hover > .ui-menuitem-link,
@@ -221,21 +264,21 @@
             }
 
             .sidebar-menu .ui-menuitem > .ui-menuitem-link:hover {
-                background: rgba(0, 71, 255, 0.3) !important;
+                background: rgba(15, 118, 110, 0.3) !important;
                 color: #ffffff !important;
-                border-left: 3px solid var(--eventplatform-blue) !important;
+                border-left: 3px solid var(--greenpulse-teal) !important;
                 font-weight: 600 !important;
             }
 
             .sidebar-menu .ui-menuitem-link.ui-state-active {
-                background: rgba(0, 71, 255, 0.35) !important;
+                background: rgba(15, 118, 110, 0.35) !important;
                 color: #ffffff !important;
-                border-left: 3px solid var(--eventplatform-blue) !important;
+                border-left: 3px solid var(--greenpulse-teal) !important;
                 font-weight: 600 !important;
             }
 
             .sidebar-menu .ui-menuitem-link.ui-state-active:hover {
-                background: rgba(0, 71, 255, 0.45) !important;
+                background: rgba(15, 118, 110, 0.45) !important;
                 color: #ffffff !important;
             }
 
@@ -261,7 +304,7 @@
             }
 
             .sidebar-menu .ui-menuitem-link.ui-state-active .ui-menuitem-icon {
-                background: linear-gradient(135deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%) !important;
+                background: linear-gradient(135deg, var(--greenpulse-teal) 0%, var(--greenpulse-teal-dark) 100%) !important;
                 color: #ffffff !important;
             }
             
@@ -286,7 +329,7 @@
                 width: 45px;
                 height: 45px;
                 border-radius: 50%;
-                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -306,7 +349,7 @@
             }
 
             .sidebar-user-details p {
-                color: rgba(255, 255, 255, 0.7);
+                color: #ffffff;
                 font-size: 12px;
                 margin: 2px 0 0 0;
                 text-transform: uppercase;
@@ -316,9 +359,9 @@
 
             .sidebar-logout {
                 width: 100%;
-                background: rgba(0, 123, 255, 0.2) !important;
-                border: 1px solid rgba(0, 123, 255, 0.4) !important;
-                color: rgba(255, 255, 255, 0.95) !important;
+                background: rgba(15, 118, 110, 0.2) !important;
+                border: 1px solid rgba(15, 118, 110, 0.4) !important;
+                color: #ffffff !important;
                 padding: 10px 16px !important;
                 border-radius: 6px !important;
                 font-size: 13px !important;
@@ -327,8 +370,8 @@
             }
 
             .sidebar-logout:hover {
-                background: rgba(0, 123, 255, 0.35) !important;
-                border-color: rgba(0, 123, 255, 0.6) !important;
+                background: rgba(15, 118, 110, 0.35) !important;
+                border-color: rgba(15, 118, 110, 0.6) !important;
                 transform: translateY(-1px);
             }
             
@@ -336,8 +379,11 @@
             .content-header {
                 background: white;
                 padding: 25px 30px;
-                border-bottom: 1px solid var(--eventplatform-border);
+                border-bottom: 1px solid var(--greenpulse-border);
                 margin-bottom: 0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
             }
             
             .content-title {
@@ -348,14 +394,76 @@
             
             .content-title i {
                 font-size: 24px;
-                color: var(--eventplatform-blue);
+                color: var(--greenpulse-teal);
             }
             
             .content-title h1 {
                 font-size: 28px;
                 font-weight: 700;
-                color: var(--eventplatform-text);
+                color: var(--greenpulse-text);
                 margin: 0;
+            }
+
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .notification-btn {
+                position: relative;
+                border: 1px solid #d1d5db !important;
+                background: #ffffff !important;
+                color: #1f2937 !important;
+            }
+
+            .notification-badge {
+                position: absolute;
+                top: -6px;
+                right: -8px;
+                background: #ef4444;
+                color: #ffffff;
+                border-radius: 999px;
+                font-size: 10px;
+                min-width: 18px;
+                height: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0 4px;
+                font-weight: 700;
+            }
+
+            .notif-empty {
+                padding: 10px;
+                color: #6b7280;
+                min-width: 260px;
+            }
+
+            .notif-item {
+                padding: 8px 10px;
+                border-bottom: 1px solid #f1f5f9;
+                min-width: 260px;
+            }
+
+            .notif-item:last-child {
+                border-bottom: none;
+            }
+
+            .notif-title {
+                font-weight: 600;
+                color: #111827;
+                font-size: 13px;
+            }
+
+            .notif-msg {
+                color: #4b5563;
+                font-size: 12px;
+            }
+
+            .notif-time {
+                color: #9ca3af;
+                font-size: 11px;
             }
             
             /* Content Body */
@@ -415,7 +523,7 @@
                     <div class="sidebar-header-logo">
                         <i class="pi pi-calendar"></i>
                     </div>
-                    <h3>EventPlatform</h3>
+                    <h3>GreenPulse Events</h3>
                     <p>Événements &amp; Billetterie</p>
                 </div>
                 
@@ -552,6 +660,46 @@
                         <ui:insert name="pageIcon"><i class="pi pi-home"></i></ui:insert>
                         <h1><ui:insert name="pageTitle">Dashboard</ui:insert></h1>
                     </div>
+
+                    <h:panelGroup layout="block" styleClass="header-actions" rendered="#{authController.utilisateurConnecte != null}">
+                        <h:form id="notificationForm">
+                            <h:panelGroup id="notifWrap" layout="block" style="position:relative; display:inline-block;">
+                                <p:commandButton id="notifBtn"
+                                                 icon="pi pi-bell"
+                                                 type="button"
+                                                 styleClass="notification-btn ui-button-flat"/>
+                                <h:panelGroup rendered="#{notificationController.unreadCount gt 0}">
+                                    <span class="notification-badge">#{notificationController.unreadCount}</span>
+                                </h:panelGroup>
+                            </h:panelGroup>
+
+                            <p:overlayPanel for="notifBtn" showEffect="fade" hideEffect="fade" appendTo="@(body)">
+                                <h:panelGroup rendered="#{empty notificationController.recentNotifications}" styleClass="notif-empty">
+                                    Aucune notification récente.
+                                </h:panelGroup>
+
+                                <ui:repeat value="#{notificationController.recentNotifications}" var="n">
+                                    <div class="notif-item">
+                                        <div class="notif-title">#{n.titre}</div>
+                                        <div class="notif-msg">#{n.message}</div>
+                                        <div class="notif-time">
+                                            <h:outputText value="#{n.createdAt}">
+                                                <f:convertDateTime pattern="dd/MM HH:mm"/>
+                                            </h:outputText>
+                                        </div>
+                                    </div>
+                                </ui:repeat>
+
+                                <div style="padding-top:8px; text-align:right;">
+                                    <p:commandButton value="Tout marquer lu"
+                                                     action="#{notificationController.markAllAsRead}"
+                                                     update=":notificationForm:notifWrap"
+                                                     process="@this"
+                                                     styleClass="ui-button-flat"/>
+                                </div>
+                            </p:overlayPanel>
+                        </h:form>
+                    </h:panelGroup>
                 </div>
                 
                 <!-- Corps du Contenu -->

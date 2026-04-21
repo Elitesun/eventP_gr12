@@ -1,650 +1,401 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="jakarta.faces.html"
-                xmlns:f="jakarta.faces.core"
-                xmlns:ui="jakarta.faces.facelets"
-                xmlns:p="http://primefaces.org/ui"
-                template="/WEB-INF/public_template.xhtml">
-    
-    <ui:define name="title">Inscription - EventPlatform</ui:define>
-    
-    <ui:define name="head">
-        <style>
-            :root {
-                --eventplatform-blue: #0047FF;
-                --eventplatform-blue-dark: #0039CC;
-                --eventplatform-white: #ffffff;
-                --eventplatform-bg: #f4f7f9;
-                --eventplatform-border: #e5e7eb;
-                --eventplatform-text: #1a1a1a;
-                --eventplatform-text-muted: #6c757d;
-            }
-
-            .register-wrapper {
-                min-height: 100vh;
-                background: var(--eventplatform-bg);
-                padding: 40px 20px;
-            }
-
-            .register-container {
-                max-width: 900px;
-                margin: 0 auto;
-            }
-
-            .register-header {
-                background: white;
-                border-radius: 12px;
-                padding: 40px 30px;
-                margin-bottom: 30px;
-                box-shadow: 0 2px 8px rgba(0, 71, 255, 0.1);
-                border: 1px solid var(--eventplatform-border);
-                text-align: center;
-            }
-
-            .register-header h1 {
-                font-size: 32px;
-                font-weight: 700;
-                color: var(--eventplatform-text);
-                margin: 0 0 10px 0;
-            }
-
-            .register-header p {
-                font-size: 16px;
-                color: var(--eventplatform-text-muted);
-                margin: 0;
-            }
-
-            /* Onglets */
-            .tabs-wrapper {
-                display: flex;
-                gap: 0;
-                background: white;
-                border-radius: 12px 12px 0 0;
-                border: 1px solid var(--eventplatform-border);
-                border-bottom: none;
-                overflow: hidden;
-                box-shadow: 0 2px 8px rgba(0, 71, 255, 0.1);
-            }
-
-            .tab-btn {
-                flex: 1;
-                padding: 16px 24px;
-                border: none;
-                background: transparent;
-                color: var(--eventplatform-text-muted);
-                font-size: 15px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                border-bottom: 3px solid transparent;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .tab-btn:hover {
-                background: var(--eventplatform-bg);
-                color: var(--eventplatform-blue);
-            }
-
-            .tab-btn.active {
-                color: var(--eventplatform-blue);
-                border-bottom-color: var(--eventplatform-blue);
-            }
-
-            .tab-content-wrapper {
-                background: white;
-                border-radius: 0 0 12px 12px;
-                border: 1px solid var(--eventplatform-border);
-                border-top: none;
-                box-shadow: 0 2px 8px rgba(0, 71, 255, 0.1);
-                padding: 30px;
-            }
-
-            .tab-content {
-                display: none;
-            }
-
-            .tab-content.active {
-                display: block;
-            }
-
-            /* Formulaire */
-            .form-row {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-                margin-bottom: 20px;
-            }
-
-            .form-row.full {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .form-label {
-                font-size: 13px;
-                font-weight: 600;
-                color: var(--eventplatform-text);
-                margin-bottom: 8px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .form-input, .ui-inputtext, .ui-inputsecret, .ui-password, .ui-selectonemenu {
-                width: 100% !important;
-                padding: 12px 16px !important;
-                border: 2px solid var(--eventplatform-border) !important;
-                border-radius: 8px !important;
-                font-size: 14px !important;
-                transition: all 0.3s ease !important;
-                font-family: inherit !important;
-                color: var(--eventplatform-text) !important;
-            }
-
-            .form-input:focus, .ui-inputtext:focus, .ui-inputsecret:focus, .ui-password:focus, .ui-selectonemenu:focus {
-                border-color: var(--eventplatform-blue) !important;
-                box-shadow: 0 0 0 3px rgba(0, 71, 255, 0.1) !important;
-                outline: none !important;
-            }
-
-            .error-message {
-                color: #dc3545 !important;
-                font-size: 12px !important;
-                margin-top: 4px !important;
-                font-weight: 500 !important;
-            }
-
-            /* Section conditionnelle */
-            .conditional-section {
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.3s ease;
-                opacity: 0;
-            }
-
-            .conditional-section.active {
-                max-height: 1000px;
-                opacity: 1;
-            }
-
-            .section-title {
-                font-size: 16px;
-                font-weight: 700;
-                color: var(--eventplatform-text);
-                margin: 25px 0 20px 0;
-                padding-bottom: 15px;
-                border-bottom: 2px solid var(--eventplatform-border);
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .section-title i {
-                color: var(--eventplatform-blue);
-                font-size: 18px;
-            }
-
-            /* Checkbox */
-            .checkbox-wrapper {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin: 20px 0;
-                padding: 15px;
-                background: rgba(0, 71, 255, 0.05);
-                border-radius: 8px;
-            }
-
-            .checkbox-wrapper input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                cursor: pointer;
-                accent-color: var(--eventplatform-blue);
-            }
-
-            .checkbox-wrapper label {
-                font-size: 14px;
-                color: var(--eventplatform-text);
-                margin: 0;
-                cursor: pointer;
-                flex: 1;
-            }
-
-            /* Boutons */
-            .btn-register {
-                width: 100%;
-                padding: 14px 24px !important;
-                background: var(--eventplatform-blue) !important;
-                color: white !important;
-                border: none !important;
-                border-radius: 8px !important;
-                font-size: 15px !important;
-                font-weight: 600 !important;
-                cursor: pointer !important;
-                transition: all 0.3s ease !important;
-                margin-top: 20px !important;
-                text-transform: uppercase !important;
-                letter-spacing: 0.5px !important;
-            }
-
-            .btn-register:hover {
-                background: var(--eventplatform-blue-dark) !important;
-                box-shadow: 0 4px 12px rgba(0, 71, 255, 0.3) !important;
-                transform: translateY(-1px) !important;
-            }
-
-            .register-footer {
-                text-align: center;
-                margin-top: 30px;
-                font-size: 14px;
-                color: var(--eventplatform-text-muted);
-            }
-
-            .register-footer a {
-                color: var(--eventplatform-blue);
-                text-decoration: none;
-                font-weight: 600;
-            }
-
-            .register-footer a:hover {
-                text-decoration: underline;
-            }
-
-            /* Messages */
-            .ui-messages {
-                margin-bottom: 20px !important;
-            }
-
-            .ui-messages-info {
-                background: #d1ecf1 !important;
-                border-color: #bee5eb !important;
-                color: #0c5460 !important;
-            }
-
-            .ui-messages-error {
-                background: #f8d7da !important;
-                border-color: #f5c6cb !important;
-                color: #721c24 !important;
-            }
-
-            /* Responsive */
-            @media (max-width: 768px) {
-                .form-row {
-                    grid-template-columns: 1fr;
-                    gap: 15px;
-                }
-
-                .register-header {
-                    padding: 30px 20px;
-                }
-
-                .tab-content-wrapper {
-                    padding: 20px;
-                }
-
-                .register-header h1 {
-                    font-size: 24px;
-                }
-
-                .tabs-wrapper {
-                    flex-direction: column;
-                }
-
-                .tab-btn {
-                    border-bottom: none !important;
-                    border-right: 3px solid transparent !important;
-                }
-
-                .tab-btn.active {
-                    border-bottom: none !important;
-                    border-right-color: var(--eventplatform-blue) !important;
-                }
-            }
-        </style>
-    </ui:define>
-
-    <ui:define name="content">
-        <div class="register-wrapper">
-            <div class="register-container">
-                <!-- Header -->
-                <div class="register-header">
-                    <h1>Inscription</h1>
-                    <p>Créez votre compte pour accéder à la plateforme EventPlatform</p>
-                </div>
-
-                <!-- Messages -->
-                <h:panelGroup rendered="#{not empty facesContext.messageList}">
-                    <p:messages id="messages" globalOnly="true" showDetail="true" closable="true"/>
-                </h:panelGroup>
-
-                <!-- Onglets -->
-                <div class="tabs-wrapper">
-                    <button type="button" class="tab-btn active" onclick="switchTab(event, 'client')">
-                        <i class="pi pi-user"></i> Client
-                    </button>
-                    <button type="button" class="tab-btn" onclick="switchTab(event, 'organisateur')">
-                        <i class="pi pi-briefcase"></i> Organisateur
-                    </button>
-                </div>
-
-                <!-- Contenu des onglets -->
-                <div class="tab-content-wrapper">
-                    <!-- ========== INSCRIPTION CLIENT ========== -->
-                    <div id="client" class="tab-content active">
-                        <h:form id="clientForm">
-                            <h2 class="section-title">
-                                <i class="pi pi-user"></i>
-                                Informations Personnelles
-                            </h2>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Nom *</label>
-                                <h:inputText id="clientNom" value="#{registerController.nom}" 
-                                                required="true" 
-                                                requiredMessage="Le nom est obligatoire" styleClass="form-input"
-                                                p:placeholder="Votre nom"/>
-                                <h:message for="clientNom" styleClass="error-message"/>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Prénom *</label>
-                                <h:inputText id="clientPrenom" value="#{registerController.prenom}" 
-                                                required="true"
-                                                requiredMessage="Le prénom est obligatoire" styleClass="form-input"
-                                                p:placeholder="Votre prénom"/>
-                                <h:message for="clientPrenom" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Email *</label>
-                                    <h:inputText id="clientEmail" value="#{registerController.email}" 
-                                                required="true" 
-                                                requiredMessage="L'email est obligatoire" styleClass="form-input"
-                                                p:placeholder="votre@email.com">
-                                        <f:ajax event="blur" render="clientEmailMsg"/>
-                                    </h:inputText>
-                                    <h:message id="clientEmailMsg" for="clientEmail" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Téléphone *</label>
-                                    <h:inputText id="clientTelephone" value="#{registerController.telephone}" 
-                                                required="true"
-                                                requiredMessage="Le téléphone est obligatoire" styleClass="form-input"
-                                                p:placeholder="Votre numéro de téléphone"/>
-                                    <h:message for="clientTelephone" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <h2 class="section-title">
-                                <i class="pi pi-lock"></i>
-                                Sécurité
-                            </h2>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Mot de passe *</label>
-                                    <h:inputSecret id="clientMotDePasse" value="#{registerController.motDePasse}" 
-                                                  required="true" 
-                                                  requiredMessage="Le mot de passe est obligatoire" styleClass="form-input"
-                                                  p:placeholder="Au moins 6 caractères"/>
-                                    <h:message for="clientMotDePasse" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Confirmer le mot de passe *</label>
-                                    <h:inputSecret id="clientConfirmMDP" value="#{registerController.confirmPassword}"
-                                                  required="true" 
-                                                  requiredMessage="Confirmation du mot de passe obligatoire" styleClass="form-input"
-                                                  p:placeholder="Confirmez votre mot de passe"/>
-                                    <h:message for="clientConfirmMDP" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <div class="checkbox-wrapper">
-                                <h:selectBooleanCheckbox id="clientAccept" value="#{registerController.acceptTerms}" />
-                                <label for="clientAccept">J'accepte les conditions d'utilisation *</label>
-                            </div>
-
-                            <h:commandButton value="S'inscrire en tant que Client" 
-                                            action="#{registerController.inscrireClient}" 
-                                            styleClass="btn-register"/>
-                        </h:form>
-                    </div>
-
-                    <!-- ========== INSCRIPTION ORGANISATEUR ========== -->
-                    <div id="organisateur" class="tab-content">
-                        <h:form id="orgForm">
-                            <h2 class="section-title">
-                                <i class="pi pi-briefcase"></i>
-                                Type d'Organisateur
-                            </h2>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Type d'organisateur *</label>
-                                    <h:selectOneMenu id="orgType" value="#{registerController.typeOrganisateur}" 
-                                                    required="true" requiredMessage="Le type d'organisateur est obligatoire"
-                                                    onchange="toggleOrganizerInfo(); jsf.ajax.request(this, event, {execute: '@this'});">
-                                        <f:selectItem itemValue="" itemLabel="-- Sélectionnez --"/>
-                                        <f:selectItem itemValue="PHYSIQUE" itemLabel="Personne Physique"/>
-                                        <f:selectItem itemValue="MORALE" itemLabel="Personne Morale (Entreprise)"/>
-                                    </h:selectOneMenu>
-                                    <h:message for="orgType" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <h2 class="section-title">
-                                <i class="pi pi-user"></i>
-                                Informations de Base
-                            </h2>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Nom *</label>
-                                    <h:inputText id="orgaNom" value="#{registerController.nom}" 
-                                                required="true" 
-                                                requiredMessage="Le nom est obligatoire" styleClass="form-input"
-                                                p:placeholder="Votre nom"/>
-                                    <h:message for="orgaNom" styleClass="error-message"/>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Prénom *</label>
-                                    <h:inputText id="orgaPrenom" value="#{registerController.prenom}" 
-                                                required="true"
-                                                requiredMessage="Le prénom est obligatoire" styleClass="form-input"
-                                                p:placeholder="Votre prénom"/>
-                                    <h:message for="orgaPrenom" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Email *</label>
-                                    <h:inputText id="orgaEmail" value="#{registerController.email}" 
-                                                required="true" 
-                                                requiredMessage="L'email est obligatoire" styleClass="form-input"
-                                                p:placeholder="votre@email.com">
-                                        <f:ajax event="blur" render="orgaEmailMsg"/>
-                                    </h:inputText>
-                                    <h:message id="orgaEmailMsg" for="orgaEmail" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Téléphone *</label>
-                                    <h:inputText id="orgaTelephone" value="#{registerController.telephone}" 
-                                                required="true"
-                                                requiredMessage="Le téléphone est obligatoire" styleClass="form-input"
-                                                p:placeholder="Votre numéro"/>
-                                    <h:message for="orgaTelephone" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <!-- Section Personne Morale -->
-                            <div id="moraleInfo" class="conditional-section">
-                                <h2 class="section-title">
-                                    <i class="pi pi-building"></i>
-                                    Informations d'Entreprise
-                                </h2>
-
-                                <div class="form-row full">
-                                    <div class="form-group">
-                                        <label class="form-label">Nom de l'entreprise *</label>
-                                        <h:inputText id="orgNomEntreprise" value="#{registerController.nomEntreprise}" 
-                                                    styleClass="form-input"
-                                                    p:placeholder="Nom complet de l'entreprise"/>
-                                        <h:message for="orgNomEntreprise" styleClass="error-message"/>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">SIRET</label>
-                                        <h:inputText id="orgSIRET" value="#{registerController.numeroSIRET}" 
-                                                    styleClass="form-input"
-                                                    p:placeholder="Numéro SIRET (14 chiffres)"/>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Secteur d'activité *</label>
-                                        <h:inputText id="orgSecteur" value="#{registerController.secteurActivite}" 
-                                                    styleClass="form-input"
-                                                    p:placeholder="Ex: Technologie, Événementiel..."/>
-                                        <h:message for="orgSecteur" styleClass="error-message"/>
-                                    </div>
-                                </div>
-
-                                <div class="form-row full">
-                                    <div class="form-group">
-                                        <label class="form-label">Adresse du siège *</label>
-                                        <h:inputText id="orgAdresse" value="#{registerController.adresseSiege}" 
-                                                    styleClass="form-input"
-                                                    p:placeholder="Adresse complète"/>
-                                        <h:message for="orgAdresse" styleClass="error-message"/>
-                                    </div>
-                                </div>
-
-                                <div class="form-row full">
-                                    <div class="form-group">
-                                        <label class="form-label">Site Web</label>
-                                        <h:inputText id="orgSiteWeb" value="#{registerController.siteWeb}" 
-                                                    styleClass="form-input"
-                                                    p:placeholder="https://www.votre-site.com"/>
-                                    </div>
-                                </div>
-
-                                <h2 class="section-title">
-                                    <i class="pi pi-user-edit"></i>
-                                    Représentant de l'Entreprise
-                                </h2>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Prénom du représentant *</label>
-                                        <h:inputText id="orgRepPrénom" value="#{registerController.prenomRepresentant}" 
-                                                    styleClass="form-input"
-                                                    p:placeholder="Prénom"/>
-                                        <h:message for="orgRepPrénom" styleClass="error-message"/>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Nom du représentant *</label>
-                                        <h:inputText id="orgRepNom" value="#{registerController.nomRepresentant}" 
-                                                    styleClass="form-input"
-                                                    p:placeholder="Nom"/>
-                                        <h:message for="orgRepNom" styleClass="error-message"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h2 class="section-title">
-                                <i class="pi pi-lock"></i>
-                                Sécurité
-                            </h2>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Mot de passe *</label>
-                                    <h:inputSecret id="orgaMotDePasse" value="#{registerController.motDePasse}" 
-                                                  required="true" 
-                                                  requiredMessage="Le mot de passe est obligatoire" styleClass="form-input"
-                                                  p:placeholder="Au moins 6 caractères"/>
-                                    <h:message for="orgaMotDePasse" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <div class="form-row full">
-                                <div class="form-group">
-                                    <label class="form-label">Confirmer le mot de passe *</label>
-                                    <h:inputSecret id="orgaConfirmMDP" value="#{registerController.confirmPassword}"
-                                                  required="true" 
-                                                  requiredMessage="Confirmation du mot de passe obligatoire" styleClass="form-input"
-                                                  p:placeholder="Confirmez votre mot de passe"/>
-                                    <h:message for="orgaConfirmMDP" styleClass="error-message"/>
-                                </div>
-                            </div>
-
-                            <div class="checkbox-wrapper">
-                                <h:selectBooleanCheckbox id="orgAccept" value="#{registerController.acceptTerms}" />
-                                <label for="orgAccept">J'accepte les conditions d'utilisation *</label>
-                            </div>
-
-                            <h:commandButton value="S'inscrire en tant qu'Organisateur" 
-                                            action="#{registerController.inscrireOrganisateur}" 
-                                            styleClass="btn-register"/>
-                        </h:form>
-                    </div>
-                </div>
-
-                <div class="register-footer">
-                    Vous avez déjà un compte ? <h:link value="Se connecter" outcome="login"/>
-                </div>
-            </div>
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="jakarta.faces.html"
+  xmlns:f="jakarta.faces.core"
+  xmlns:ui="jakarta.faces.facelets"
+  xmlns:p="http://primefaces.org/ui"
+  template="/WEB-INF/public_template.xhtml"
+>
+  <ui:define name="title">Inscription - GreenPulse Events</ui:define>
+
+  <ui:define name="head">
+    <h:outputStylesheet library="css" name="register.css" />
+  </ui:define>
+
+  <ui:define name="content">
+    <div class="register-page">
+      <div class="register-card">
+        <div class="register-head">
+          <h1>Créer un compte</h1>
+          <p>Inscrivez-vous pour continuer sur GreenPulse Events.</p>
         </div>
 
-        <script>
-            //<![CDATA[
-            function switchTab(event, tab) {
-                event.preventDefault();
-                
-                document.querySelectorAll('.tab-content').forEach(el => {
-                    el.classList.remove('active');
-                });
-                
-                document.getElementById(tab).classList.add('active');
+        <h:panelGroup rendered="#{not empty facesContext.messageList}">
+          <p:messages
+            id="messages"
+            globalOnly="true"
+            showDetail="true"
+            closable="true"
+          />
+        </h:panelGroup>
 
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                event.target.closest('.tab-btn').classList.add('active');
-            }
+        <div class="register-tabs" role="tablist" aria-label="Type de compte">
+          <button
+            type="button"
+            class="tab-btn active"
+            onclick="switchTab(event, 'client')"
+          >
+            Client
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            onclick="switchTab(event, 'organisateur')"
+          >
+            Organisateur
+          </button>
+        </div>
 
-            function toggleOrganizerInfo() {
-                const typeSelect = document.getElementById('orgForm:orgType');
-                const moraleInfo = document.getElementById('moraleInfo');
-                
-                if (typeSelect && typeSelect.value === 'MORALE') {
-                    if (moraleInfo) moraleInfo.classList.add('active');
-                } else {
-                    if (moraleInfo) moraleInfo.classList.remove('active');
-                }
-            }
+        <div id="client" class="tab-panel active">
+          <h:form id="clientForm" styleClass="simple-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Nom *</label>
+                <h:inputText
+                  id="clientNom"
+                  value="#{registerController.nom}"
+                  required="true"
+                  requiredMessage="Le nom est obligatoire"
+                  styleClass="form-input"
+                />
+                <h:message for="clientNom" styleClass="error-message" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Prénom *</label>
+                <h:inputText
+                  id="clientPrenom"
+                  value="#{registerController.prenom}"
+                  required="true"
+                  requiredMessage="Le prénom est obligatoire"
+                  styleClass="form-input"
+                />
+                <h:message for="clientPrenom" styleClass="error-message" />
+              </div>
+            </div>
 
-            document.addEventListener('DOMContentLoaded', function() {
-                toggleOrganizerInfo();
-            });
-            //]]>
-        </script>
-    </ui:define>
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <h:inputText
+                id="clientEmail"
+                value="#{registerController.email}"
+                required="true"
+                requiredMessage="L'email est obligatoire"
+                styleClass="form-input"
+              >
+                <f:ajax event="blur" render="clientEmailMsg" />
+              </h:inputText>
+              <h:message
+                id="clientEmailMsg"
+                for="clientEmail"
+                styleClass="error-message"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Téléphone *</label>
+              <h:inputText
+                id="clientTelephone"
+                value="#{registerController.telephone}"
+                required="true"
+                requiredMessage="Le téléphone est obligatoire"
+                styleClass="form-input"
+              />
+              <h:message for="clientTelephone" styleClass="error-message" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mot de passe *</label>
+              <h:inputSecret
+                id="clientMotDePasse"
+                value="#{registerController.motDePasse}"
+                required="true"
+                requiredMessage="Le mot de passe est obligatoire"
+                styleClass="form-input"
+              />
+              <h:message for="clientMotDePasse" styleClass="error-message" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Confirmer le mot de passe *</label>
+              <h:inputSecret
+                id="clientConfirmMDP"
+                value="#{registerController.confirmPassword}"
+                required="true"
+                requiredMessage="Confirmation du mot de passe obligatoire"
+                styleClass="form-input"
+              />
+              <h:message for="clientConfirmMDP" styleClass="error-message" />
+            </div>
+
+            <div class="checkbox-row">
+              <h:selectBooleanCheckbox
+                id="clientAccept"
+                value="#{registerController.acceptTerms}"
+              />
+              <label for="clientAccept"
+                >J'accepte les conditions d'utilisation *</label
+              >
+            </div>
+
+            <h:commandButton
+              value="Créer mon compte client"
+              action="#{registerController.inscrireClient}"
+              styleClass="submit-btn"
+            />
+          </h:form>
+        </div>
+
+        <div id="organisateur" class="tab-panel">
+          <h:form id="orgForm" styleClass="simple-form">
+            <div class="form-group">
+              <label class="form-label">Type d'organisateur *</label>
+              <h:selectOneMenu
+                id="orgType"
+                value="#{registerController.typeOrganisateur}"
+                required="true"
+                requiredMessage="Le type d'organisateur est obligatoire"
+                styleClass="form-input"
+                onchange="
+                  toggleOrganizerInfo();
+                  jsf.ajax.request(this, event, { execute: '@this' });
+                "
+              >
+                <f:selectItem itemValue="" itemLabel="Sélectionnez un type" />
+                <f:selectItem
+                  itemValue="PHYSIQUE"
+                  itemLabel="Personne physique"
+                />
+                <f:selectItem
+                  itemValue="MORALE"
+                  itemLabel="Personne morale (entreprise)"
+                />
+              </h:selectOneMenu>
+              <h:message for="orgType" styleClass="error-message" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Nom *</label>
+                <h:inputText
+                  id="orgaNom"
+                  value="#{registerController.nom}"
+                  required="true"
+                  requiredMessage="Le nom est obligatoire"
+                  styleClass="form-input"
+                />
+                <h:message for="orgaNom" styleClass="error-message" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Prénom *</label>
+                <h:inputText
+                  id="orgaPrenom"
+                  value="#{registerController.prenom}"
+                  required="true"
+                  requiredMessage="Le prénom est obligatoire"
+                  styleClass="form-input"
+                />
+                <h:message for="orgaPrenom" styleClass="error-message" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <h:inputText
+                id="orgaEmail"
+                value="#{registerController.email}"
+                required="true"
+                requiredMessage="L'email est obligatoire"
+                styleClass="form-input"
+              >
+                <f:ajax event="blur" render="orgaEmailMsg" />
+              </h:inputText>
+              <h:message
+                id="orgaEmailMsg"
+                for="orgaEmail"
+                styleClass="error-message"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Téléphone *</label>
+              <h:inputText
+                id="orgaTelephone"
+                value="#{registerController.telephone}"
+                required="true"
+                requiredMessage="Le téléphone est obligatoire"
+                styleClass="form-input"
+              />
+              <h:message for="orgaTelephone" styleClass="error-message" />
+            </div>
+
+            <div id="moraleInfo" class="organizer-extra">
+              <h2 class="section-title">Informations de l'entreprise</h2>
+
+              <div class="form-group">
+                <label class="form-label">Nom de l'entreprise *</label>
+                <h:inputText
+                  id="orgNomEntreprise"
+                  value="#{registerController.nomEntreprise}"
+                  styleClass="form-input"
+                />
+                <h:message for="orgNomEntreprise" styleClass="error-message" />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">SIRET</label>
+                  <h:inputText
+                    id="orgSIRET"
+                    value="#{registerController.numeroSIRET}"
+                    styleClass="form-input"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Secteur d'activité *</label>
+                  <h:inputText
+                    id="orgSecteur"
+                    value="#{registerController.secteurActivite}"
+                    styleClass="form-input"
+                  />
+                  <h:message for="orgSecteur" styleClass="error-message" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Adresse du siège *</label>
+                <h:inputText
+                  id="orgAdresse"
+                  value="#{registerController.adresseSiege}"
+                  styleClass="form-input"
+                />
+                <h:message for="orgAdresse" styleClass="error-message" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Site web</label>
+                <h:inputText
+                  id="orgSiteWeb"
+                  value="#{registerController.siteWeb}"
+                  styleClass="form-input"
+                />
+              </div>
+
+              <h2 class="section-title">Représentant</h2>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Prénom du représentant *</label>
+                  <h:inputText
+                    id="orgRepPrénom"
+                    value="#{registerController.prenomRepresentant}"
+                    styleClass="form-input"
+                  />
+                  <h:message for="orgRepPrénom" styleClass="error-message" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nom du représentant *</label>
+                  <h:inputText
+                    id="orgRepNom"
+                    value="#{registerController.nomRepresentant}"
+                    styleClass="form-input"
+                  />
+                  <h:message for="orgRepNom" styleClass="error-message" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mot de passe *</label>
+              <h:inputSecret
+                id="orgaMotDePasse"
+                value="#{registerController.motDePasse}"
+                required="true"
+                requiredMessage="Le mot de passe est obligatoire"
+                styleClass="form-input"
+              />
+              <h:message for="orgaMotDePasse" styleClass="error-message" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Confirmer le mot de passe *</label>
+              <h:inputSecret
+                id="orgaConfirmMDP"
+                value="#{registerController.confirmPassword}"
+                required="true"
+                requiredMessage="Confirmation du mot de passe obligatoire"
+                styleClass="form-input"
+              />
+              <h:message for="orgaConfirmMDP" styleClass="error-message" />
+            </div>
+
+            <div class="checkbox-row">
+              <h:selectBooleanCheckbox
+                id="orgAccept"
+                value="#{registerController.acceptTerms}"
+              />
+              <label for="orgAccept"
+                >J'accepte les conditions d'utilisation *</label
+              >
+            </div>
+
+            <h:commandButton
+              value="Créer mon compte organisateur"
+              action="#{registerController.inscrireOrganisateur}"
+              styleClass="submit-btn"
+            />
+          </h:form>
+        </div>
+
+        <p class="register-footer">
+          Vous avez déjà un compte ?
+          <h:link value="Se connecter" outcome="login" />
+        </p>
+      </div>
+    </div>
+
+    <script>
+      //<![CDATA[
+      function switchTab(event, tabId) {
+        event.preventDefault();
+
+        document.querySelectorAll(".tab-panel").forEach(function (panel) {
+          panel.classList.remove("active");
+        });
+        document.querySelectorAll(".tab-btn").forEach(function (button) {
+          button.classList.remove("active");
+        });
+
+        var targetPanel = document.getElementById(tabId);
+        if (targetPanel) {
+          targetPanel.classList.add("active");
+        }
+
+        var clickedButton = event.currentTarget;
+        if (clickedButton) {
+          clickedButton.classList.add("active");
+        }
+      }
+
+      function toggleOrganizerInfo() {
+        var typeSelect = document.getElementById("orgForm:orgType");
+        var moraleInfo = document.getElementById("moraleInfo");
+
+        if (!typeSelect || !moraleInfo) {
+          return;
+        }
+
+        if (typeSelect.value === "MORALE") {
+          moraleInfo.classList.add("active");
+        } else {
+          moraleInfo.classList.remove("active");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        toggleOrganizerInfo();
+      });
+      //]]>
+    </script>
+  </ui:define>
 </ui:composition>

@@ -258,6 +258,52 @@ src/main/resources/
 3. **Service** : Logique métier et transactions
 4. **Controller** : ManagedBeans pour l'interface utilisateur
 
+## API REST (Création + Scan)
+
+Base URL:
+
+- `http://localhost:8080/eventProjectGlsi/resources`
+
+### 1) Créer un événement
+
+- Endpoint: `POST /events`
+- Description: crée un événement en mode brouillon avec 2 catégories fixes (`Standard` et `VIP`).
+
+Exemple de payload:
+
+```json
+{
+   "titre": "API Event Demo",
+   "description": "Event created via REST endpoint",
+   "dateEvenement": "2026-05-10T18:30:00",
+   "lieu": "Abidjan API Hall",
+   "standardPrix": 5000,
+   "standardQuantite": 20,
+   "vipPrix": 12000,
+   "vipQuantite": 10,
+   "email": "orga1@event.com",
+   "password": "password123"
+}
+```
+
+### 2) Scanner un ticket
+
+- Endpoint: `GET /events/scan/{codeQr}`
+- Description: retourne les informations du ticket (événement, client, catégorie, statut).
+
+### 3) Valider un ticket scanné
+
+- Endpoint: `POST /events/scan/{codeQr}/validate`
+- Description: valide un ticket vendu et le passe à l'état utilisé.
+
+### Exemples PowerShell
+
+```powershell
+Invoke-RestMethod -Method GET -Uri "http://localhost:8080/eventProjectGlsi/resources/events/scan/TICKET-8-9-xxxx"
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8080/eventProjectGlsi/resources/events/scan/TICKET-8-9-xxxx/validate"
+```
+
 ### Bonnes Pratiques
 
 1. **Templates** :

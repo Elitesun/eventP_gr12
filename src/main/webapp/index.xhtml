@@ -1,103 +1,185 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="jakarta.faces.html"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="jakarta.faces.core"
-                xmlns:ui="jakarta.faces.facelets"
-                template="/WEB-INF/public_template.xhtml">
-    
-    <ui:define name="title">EventPlatform - Découvrez les meilleurs événements</ui:define>
-    
-    <ui:define name="head">
-        <link rel="stylesheet" href="#{request.contextPath}/resources/css/index.css"/>
-    </ui:define>
-    
-    <ui:define name="content">
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="container">
-                <h1 class="hero-title">Découvrez des événements extraordinaires</h1>
-                <p class="hero-subtitle">Trouvez et réservez les meilleurs événements près de chez vous</p>
-                
-                <!-- Barre de recherche -->
-                <div class="search-container">
-                    <h:form>
-                        <div class="search-form">
-                            <p:inputText 
-value="#{clientEvenementController.termeRecherche}"
-                                placeholder="Rechercher des événements, concerts, conférences..."
-                                styleClass="search-input"/>
-                            <p:commandButton 
-                                value="Rechercher"
-                                action="#{clientEvenementController.rechercherEvenements}"
-                                styleClass="search-btn"
-                                update="@form,evenementsGrid"
-                                process="@form"/>
-                        </div>
-                    </h:form>
-                </div>
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="jakarta.faces.html"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:f="jakarta.faces.core"
+  xmlns:ui="jakarta.faces.facelets"
+  template="/WEB-INF/public_template.xhtml"
+>
+  <ui:define name="title"
+    >GreenPulse Events - Découvrez les meilleurs événements</ui:define
+  >
+
+  <ui:define name="head">
+    <h:outputStylesheet library="css" name="index.css" />
+  </ui:define>
+
+  <ui:define name="content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <h1 class="hero-title">Découvrez des événements extraordinaires</h1>
+        <p class="hero-subtitle">
+          Trouvez et réservez les meilleurs événements près de chez vous
+        </p>
+
+        <!-- Barre de recherche -->
+        <div class="search-container">
+          <h:form>
+            <div class="search-form">
+              <p:inputText
+                value="#{clientEvenementController.termeRecherche}"
+                placeholder="Rechercher des événements, concerts, conférences..."
+                styleClass="search-input"
+              />
+              <p:commandButton
+                value="Rechercher"
+                action="#{clientEvenementController.rechercherEvenements}"
+                styleClass="search-btn"
+                update="@form,evenementsGrid"
+                process="@form"
+              />
             </div>
-        </section>
-        
-        <!-- Section des événements -->
-        <section class="main-content">
-            <div class="container">
-                <h2 class="section-title">Événements populaires</h2>
-                
-                <!-- Grille d'événements avec Bootstrap -->
-                <div class="row g-4">
-                    <ui:repeat value="#{clientEvenementController.evenementsPublies}" var="event">
-                        <div class="col-lg-4 col-md-6 col-sm-12">
-                            <div class="card event-card">
-                                <div class="event-image">
-                                    <i class="pi pi-calendar"></i>
-                                    <div class="event-date-badge">
-                                        <h:outputText value="#{event.dateEvenement}">
-                                            <f:convertDateTime pattern="dd/MM/yyyy"/>
-                                        </h:outputText>
-                                    </div>
-                                </div>
+          </h:form>
+        </div>
+      </div>
+    </section>
 
-                                <div class="event-body">
-                                    <h5 class="event-title">#{event.titre}</h5>
+    <!-- Section des événements -->
+    <section class="main-content">
+      <div class="container">
+        <h2 class="section-title">Événements populaires</h2>
 
-                                    <div class="event-location">
-                                        <i class="pi pi-map-marker"></i>
-                                        #{event.lieu}
-                                    </div>
-
-                                    <div class="event-price">#{event.prixTicket} €</div>
-
-                                    <p class="event-description">#{event.description}</p>
-
-                                    <p class="event-tickets">Tickets disponibles : #{event.ticketsDisponibles}</p>
-
-                                    <h:form>
-                                        <h:link outcome="events?faces-redirect=true" styleClass="btn-event">
-                                            Voir détails
-                                        </h:link>
-                                    </h:form>
-                                </div>
-                            </div>
-                        </div>
-                    </ui:repeat>
+        <!-- Grille d'événements avec Bootstrap -->
+        <div class="row g-4">
+          <ui:repeat
+            value="#{clientEvenementController.evenementsPublies}"
+            var="event"
+          >
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="card event-card">
+                <div class="event-image">
+                  <h:panelGroup rendered="#{not empty event.imageUrl}">
+                    <img src="#{event.imageUrl}" alt="Image événement" style="width:100%; height:100%; object-fit:cover;"/>
+                  </h:panelGroup>
+                  <h:panelGroup rendered="#{empty event.imageUrl}">
+                    <i class="pi pi-calendar"></i>
+                  </h:panelGroup>
+                  <div class="event-date-badge">
+                    <h:outputText value="#{event.dateEvenement}">
+                      <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                  </div>
                 </div>
-                
-                <!-- Section d'appel à l'action -->
-                <div class="cta-section">
-                    <h3 class="cta-title">Vous organisez des événements ?</h3>
-                    <p class="cta-subtitle">
-                        Rejoignez EventPlatform et commencez à vendre vos billets dès aujourd'hui
-                    </p>
-                    <h:form>
-                        <h:link outcome="login" styleClass="btn-cta">
-                            <i class="pi pi-plus"></i>
-                            Créer un événement
-                        </h:link>
-                    </h:form>
+
+                <div class="event-body">
+                  <h5 class="event-title">#{event.titre}</h5>
+
+                  <div class="event-location">
+                    <i class="pi pi-map-marker"></i>
+                    #{event.lieu}
+                  </div>
+
+                  <div class="event-price">#{clientEvenementController.getPrixAffichage(event)}</div>
+
+                  <p class="event-description">#{event.description}</p>
+
+                  <p class="event-tickets">
+                    Tickets disponibles : #{event.ticketsDisponibles}
+                  </p>
+
+                  <h:panelGroup rendered="#{authController.utilisateurConnecte == null}">
+                    <h:link outcome="login?faces-redirect=true" styleClass="btn-event">
+                      Se connecter pour acheter
+                    </h:link>
+                  </h:panelGroup>
+
+                  <h:panelGroup rendered="#{authController.utilisateurConnecte != null}">
+                    <h:link outcome="events?faces-redirect=true" styleClass="btn-event">
+                      Acheter des billets
+                    </h:link>
+                  </h:panelGroup>
                 </div>
+              </div>
             </div>
-        </section>
-    </ui:define>
+          </ui:repeat>
+        </div>
+
+        <!-- Section d'exploration des pages -->
+        <div class="pages-section">
+          <h3 class="pages-title">Explorez plus de pages</h3>
+          <div class="row g-3">
+            <div class="col-lg-3 col-md-6 col-sm-12">
+              <h:link
+                outcome="events?faces-redirect=true"
+                styleClass="page-card-link"
+              >
+                <div class="page-card">
+                  <i class="pi pi-list page-card-icon"></i>
+                  <h4>Liste des événements</h4>
+                  <p>Consultez tous les événements publiés.</p>
+                </div>
+              </h:link>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+              <h:link
+                outcome="login?faces-redirect=true"
+                styleClass="page-card-link"
+              >
+                <div class="page-card">
+                  <i class="pi pi-sign-in page-card-icon"></i>
+                  <h4>Connexion</h4>
+                  <p>Accédez à votre espace personnel.</p>
+                </div>
+              </h:link>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+              <h:link
+                outcome="register?faces-redirect=true"
+                styleClass="page-card-link"
+              >
+                <div class="page-card">
+                  <i class="pi pi-user-plus page-card-icon"></i>
+                  <h4>Inscription</h4>
+                  <p>Créez un compte client ou organisateur.</p>
+                </div>
+              </h:link>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+              <h:link
+                outcome="client_tickets?faces-redirect=true"
+                styleClass="page-card-link"
+              >
+                <div class="page-card">
+                  <i class="pi pi-ticket page-card-icon"></i>
+                  <h4>Mes billets</h4>
+                  <p>Retrouvez vos achats et tickets actifs.</p>
+                </div>
+              </h:link>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section d'appel à l'action -->
+        <div class="cta-section">
+          <h3 class="cta-title">Vous organisez des événements ?</h3>
+          <p class="cta-subtitle">
+            Rejoignez GreenPulse Events et commencez à vendre vos billets dès
+            aujourd'hui
+          </p>
+          <h:form>
+            <h:link outcome="login" styleClass="btn-cta">
+              <i class="pi pi-plus"></i>
+              Créer un événement
+            </h:link>
+          </h:form>
+        </div>
+      </div>
+    </section>
+  </ui:define>
 </ui:composition>

@@ -138,7 +138,7 @@ public class RegisterController implements Serializable {
      * Inscription d'un client
      */
     public String inscrireClient() {
-        System.out.println("=== INSCRIPTION CLIENT ===");
+
         
         if (!validateFormClient()) {
             return null;
@@ -183,7 +183,7 @@ public class RegisterController implements Serializable {
      * Inscription d'un organisateur (Physique ou Morale)
      */
     public String inscrireOrganisateur() {
-        System.out.println("=== INSCRIPTION ORGANISATEUR (" + typeOrganisateur + ") ===");
+
         
         if (!validateFormOrganisateur()) {
             return null;

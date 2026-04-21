@@ -38,7 +38,7 @@
             function printTicket(evenement, date, lieu, qrSrc) {
                 const printWindow = window.open('', '_blank', 'width=600,height=600');
                 printWindow.document.write('<html><head><title>Impression Billet</title>');
-                printWindow.document.write('<style>body{font-family:sans-serif;text-align:center;padding:40px;} .ticket{border:2px solid #333;padding:30px;border-radius:15px;display:inline-block;} h1{color:#0047FF;} img{width:200px;margin-top:20px;}</style>');
+                printWindow.document.write('<style>body{font-family:sans-serif;text-align:center;padding:40px;} .ticket{border:2px solid #333;padding:30px;border-radius:15px;display:inline-block;} h1{color:#0f766e;} img{width:200px;margin-top:20px;}</style>');
                 printWindow.document.write('</head><body>');
                 printWindow.document.write('<div class="ticket">');
                 printWindow.document.write('<h1>' + evenement + '</h1>');
@@ -92,8 +92,15 @@
                                     <h:outputText value="#{ticket.evenement.lieu}"/>
                                 </p:column>
 
+                                <p:column headerText="Catégorie">
+                                    <h:outputText value="#{not empty ticket.categorie ? ticket.categorie.nom : 'Standard'}"/>
+                                </p:column>
+
                                 <p:column headerText="Prix">
-                                    <h:outputText value="#{ticket.evenement.prixTicket} €"/>
+                                    <h:outputText value="#{not empty ticket.prixVente ? ticket.prixVente : (not empty ticket.categorie ? ticket.categorie.prix : ticket.evenement.prixAffichage)}">
+                                        <f:convertNumber maxFractionDigits="0"/>
+                                    </h:outputText>
+                                    <h:outputText value=" XOF"/>
                                 </p:column>
 
                                 <p:column headerText="Date d'achat">

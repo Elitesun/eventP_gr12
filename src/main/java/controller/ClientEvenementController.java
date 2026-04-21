@@ -3,6 +3,7 @@ package controller;
 import entities.Evenement;
 import entities.Achat;
 import entities.Client;
+import entities.TicketCategorie;
 import service.EvenementService;
 import service.AchatService;
 import service.TicketService;
@@ -13,6 +14,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,9 +40,14 @@ public class ClientEvenementController implements Serializable {
     @Inject
     private ClientTicketController clientTicketController;
 
+    @Inject
+    private NotificationController notificationController;
+
     // Propriétés
     private List<Evenement> evenementsPublies;
     private Evenement evenementSelectionne;
+    private List<TicketCategorie> categoriesSelectionnables;
+    private Long categorieSelectionneeId;
     private List<Achat> achatsClient;
     private Integer nombreTicketsAcheter = 1;
     private String message;
@@ -50,6 +58,7 @@ public class ClientEvenementController implements Serializable {
     public void init() {
         chargerEvenementsPublies();
         chargerAchatsClient();
+        categoriesSelectionnables = new ArrayList<>();
     }
 
     /**
@@ -99,9 +108,56 @@ public class ClientEvenementController implements Serializable {
      * Sélectionne un événement pour l'achat
      */
     public void selectionnerEvenement(Evenement evenement) {
-        this.evenementSelectionne = evenement;
+        if (evenement == null || evenement.getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                "Erreur de sélection",
+                "Événement invalide"));
+            return;
+        }
+        selectionnerEvenementParId(evenement.getId());
+    }
+
+    public void selectionnerEvenementParId(Long evenementId) {
+        if (evenementId == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                "Erreur de sélection",
+                "Événement invalide"));
+            return;
+        }
+        this.evenementSelectionne = evenementService.trouverEvenementAvecCategories(evenementId);
+        if (this.evenementSelectionne == null) {
+            this.evenementSelectionne = evenementService.trouverEvenementParId(evenementId);
+        }
+        if (this.evenementSelectionne == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                "Erreur de sélection",
+                "Événement introuvable"));
+            return;
+        }
         this.nombreTicketsAcheter = 1;
+        chargerCategoriesSelectionnables();
         message = null;
+    }
+
+    private void chargerCategoriesSelectionnables() {
+        categoriesSelectionnables = new ArrayList<>();
+        categorieSelectionneeId = null;
+
+        if (evenementSelectionne == null) {
+            return;
+        }
+
+        List<TicketCategorie> disponibles = evenementService.trouverCategoriesDisponibles(evenementSelectionne.getId());
+        if (disponibles != null) {
+            categoriesSelectionnables.addAll(disponibles);
+        }
+
+        if (!categoriesSelectionnables.isEmpty()) {
+            categorieSelectionneeId = categoriesSelectionnables.get(0).getId();
+        }
     }
 
     /**
@@ -110,6 +166,23 @@ public class ClientEvenementController implements Serializable {
     public void acheterTickets() {
         achatReussi = false;
         try {
+            if (authController.getUtilisateurConnecte() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    "Connexion requise",
+                    "Veuillez vous connecter pour acheter des tickets"));
+                FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
+                return;
+            }
+
+            if (!(authController.getUtilisateurConnecte() instanceof Client)) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Profil invalide",
+                    "Seuls les comptes client peuvent acheter des tickets"));
+                return;
+            }
+
             Client client = (Client) authController.getUtilisateurConnecte();
             if (client == null) {
                 FacesContext.getCurrentInstance().addMessage(null, 
@@ -144,8 +217,42 @@ public class ClientEvenementController implements Serializable {
                 return;
             }
 
+            TicketCategorie categorieSelectionnee = null;
+            if (categoriesSelectionnables != null && !categoriesSelectionnables.isEmpty()) {
+                if (categorieSelectionneeId == null) {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Catégorie requise",
+                        "Veuillez choisir une catégorie de ticket"));
+                    return;
+                }
+
+                for (TicketCategorie categorie : categoriesSelectionnables) {
+                    if (categorie.getId().equals(categorieSelectionneeId)) {
+                        categorieSelectionnee = categorie;
+                        break;
+                    }
+                }
+
+                if (categorieSelectionnee == null) {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Catégorie invalide",
+                        "La catégorie sélectionnée est indisponible"));
+                    return;
+                }
+
+                if (categorieSelectionnee.getQuantiteDisponible() < nombreTicketsAcheter) {
+                    FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Stock insuffisant",
+                        "La quantité demandée dépasse le stock disponible pour cette catégorie"));
+                    return;
+                }
+            }
+
             // Créer l'achat
-            Achat achat = achatService.creerAchat(client, evenementSelectionne, nombreTicketsAcheter);
+            Achat achat = achatService.creerAchat(client, evenementSelectionne, categorieSelectionnee, nombreTicketsAcheter);
 
             // Traiter le paiement (simulation)
             boolean paiementReussi = achatService.traiterPaiement(achat);
@@ -161,8 +268,11 @@ public class ClientEvenementController implements Serializable {
                 if (clientTicketController != null) {
                     clientTicketController.chargerTicketsClient();
                 }
+                notificationController.success("Achat confirmé", "Vos billets sont disponibles dans Mon espace billets.");
                 evenementSelectionne = null;
                 nombreTicketsAcheter = 1;
+                categoriesSelectionnables = new ArrayList<>();
+                categorieSelectionneeId = null;
                 achatReussi = true;
             } else {
                 FacesContext.getCurrentInstance().addMessage(null, 
@@ -171,6 +281,11 @@ public class ClientEvenementController implements Serializable {
                     "Erreur lors du paiement. Veuillez réessayer."));
             }
 
+        } catch (IOException e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                "Erreur de redirection",
+                "Impossible de rediriger vers la page de connexion"));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, 
@@ -191,10 +306,47 @@ public class ClientEvenementController implements Serializable {
      * Calcule le prix total pour l'achat en cours
      */
     public Double getPrixTotal() {
-        if (evenementSelectionne != null && nombreTicketsAcheter != null) {
+        if (evenementSelectionne == null || nombreTicketsAcheter == null) {
+            return 0.0;
+        }
+
+        TicketCategorie categorieSelectionnee = getCategorieSelectionnee();
+        if (categorieSelectionnee != null && categorieSelectionnee.getPrix() != null) {
+            return categorieSelectionnee.getPrix() * nombreTicketsAcheter;
+        }
+
+        if (evenementSelectionne.getPrixTicket() != null) {
             return evenementSelectionne.getPrixTicket() * nombreTicketsAcheter;
         }
         return 0.0;
+    }
+
+    public TicketCategorie getCategorieSelectionnee() {
+        if (categorieSelectionneeId == null || categoriesSelectionnables == null) {
+            return null;
+        }
+        for (TicketCategorie categorie : categoriesSelectionnables) {
+            if (categorieSelectionneeId.equals(categorie.getId())) {
+                return categorie;
+            }
+        }
+        return null;
+    }
+
+    public String getPrixAffichage(Evenement evenement) {
+        if (evenement == null) {
+            return "0 XOF";
+        }
+
+        Double prix = evenement.getPrixAffichage();
+        if (prix == null) {
+            prix = 0.0;
+        }
+        return String.format("%,.0f XOF", prix).replace(',', ' ');
+    }
+
+    public String prixAffichage(Evenement evenement) {
+        return getPrixAffichage(evenement);
     }
 
     // Getters et Setters
@@ -252,5 +404,21 @@ public class ClientEvenementController implements Serializable {
 
     public void setAchatReussi(boolean achatReussi) {
         this.achatReussi = achatReussi;
+    }
+
+    public List<TicketCategorie> getCategoriesSelectionnables() {
+        return categoriesSelectionnables;
+    }
+
+    public void setCategoriesSelectionnables(List<TicketCategorie> categoriesSelectionnables) {
+        this.categoriesSelectionnables = categoriesSelectionnables;
+    }
+
+    public Long getCategorieSelectionneeId() {
+        return categorieSelectionneeId;
+    }
+
+    public void setCategorieSelectionneeId(Long categorieSelectionneeId) {
+        this.categorieSelectionneeId = categorieSelectionneeId;
     }
 }

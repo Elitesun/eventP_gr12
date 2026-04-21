@@ -28,11 +28,10 @@ public class ScanBean implements Serializable {
     private Ticket ticket;
     private boolean ticketValide;
     private String messageErreur;
-    private String debugInfo;
+
 
     @PostConstruct
     public void init() {
-        debugInfo = "";
         try {
             FacesContext fc = FacesContext.getCurrentInstance();
             if (fc != null) {
@@ -40,19 +39,15 @@ public class ScanBean implements Serializable {
                         .getRequestParameterMap()
                         .get("code");
 
-                debugInfo = "Param=[" + paramCode + "] ";
+
 
                 if (paramCode != null && !paramCode.trim().isEmpty()) {
                     this.codeQr = paramCode.trim();
                     chargerTicket();
-                } else {
-                    debugInfo += "Aucun code dans URL. ";
                 }
             }
         } catch (Exception e) {
-            debugInfo += "ERR_INIT:" + e.getMessage();
             System.err.println("SCAN_BEAN ERR: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -69,11 +64,10 @@ public class ScanBean implements Serializable {
             if (ticket == null) {
                 messageErreur = "Ticket introuvable pour : " + codeQr;
                 ticketValide = false;
-                debugInfo += "NOT_FOUND. ";
+
             } else {
                 messageErreur = null;
                 ticketValide = (ticket.getStatut() == Ticket.StatutTicket.VENDU);
-                debugInfo += "OK statut=" + ticket.getStatut() + ". ";
 
                 // Forcer le chargement des relations LAZY
                 if (ticket.getEvenement() != null) {
@@ -89,7 +83,6 @@ public class ScanBean implements Serializable {
         } catch (Exception e) {
             messageErreur = "Erreur: " + e.getMessage();
             ticket = null;
-            debugInfo += "ERR:" + e.getMessage();
             System.err.println("SCAN_BEAN chargerTicket ERR: " + e.getMessage());
             e.printStackTrace();
         }
@@ -136,6 +129,5 @@ public class ScanBean implements Serializable {
     public void setTicketValide(boolean v) { this.ticketValide = v; }
     public String getMessageErreur() { return messageErreur; }
     public void setMessageErreur(String m) { this.messageErreur = m; }
-    public String getDebugInfo() { return debugInfo; }
-    public void setDebugInfo(String d) { this.debugInfo = d; }
+
 }

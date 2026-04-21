@@ -3,7 +3,10 @@ package entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.List;
@@ -15,13 +18,17 @@ import java.util.ArrayList;
  */
 @Entity
 @Table(name = "evenement")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"tickets", "categories", "organisateur"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Evenement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @NotBlank(message = "Le titre est obligatoire")
@@ -44,13 +51,20 @@ public class Evenement {
     @Column(nullable = false, length = 300)
     private String lieu;
 
+    @Size(max = 1000000, message = "L'image est trop volumineuse")
+    @Lob
+    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    private String imageUrl;
+
+    @NotNull(message = "Le prix est obligatoire")
     @DecimalMin(value = "0.0", message = "Le prix ne peut pas être négatif")
     @Column(name = "prix_ticket", nullable = false)
-    private Double prixTicket;
+    private Double prixTicket = 0.0;
 
+    @NotNull(message = "Le nombre de tickets est obligatoire")
     @Min(value = 1, message = "Le nombre de tickets doit être au moins 1")
     @Column(name = "nombre_tickets_total", nullable = false)
-    private Integer nombreTicketsTotal;
+    private Integer nombreTicketsTotal = 1;
 
     @Column(name = "tickets_vendus", nullable = false)
     private Integer ticketsVendus = 0;
@@ -78,6 +92,9 @@ public class Evenement {
     @OneToMany(mappedBy = "evenement", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
 
+    @OneToMany(mappedBy = "evenement", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TicketCategorie> categories = new ArrayList<>();
+
     // Énumération pour le statut
     public enum StatutEvenement {
         BROUILLON,
@@ -90,8 +107,11 @@ public class Evenement {
 @PrePersist
     protected void onCreate() {
         dateCreation = new Date();
-        if (nombreTicketsTotal == null) {
-            nombreTicketsTotal = 0;
+        if (nombreTicketsTotal == null || nombreTicketsTotal < 1) {
+            nombreTicketsTotal = 1;
+        }
+        if (ticketsVendus == null) {
+            ticketsVendus = 0;
         }
         ticketsDisponibles = nombreTicketsTotal;
     }
@@ -120,5 +140,28 @@ public class Evenement {
      */
     public void recalculerTicketsDisponibles() {
         this.ticketsDisponibles = this.nombreTicketsTotal - this.ticketsVendus;
+    }
+
+    public Double getPrixAffichage() {
+        if (prixTicket != null && prixTicket > 0) {
+            return prixTicket;
+        }
+        return getPrixMinTicket();
+    }
+
+    public Double getPrixMinTicket() {
+        if (categories == null || categories.isEmpty()) {
+            return 0.0;
+        }
+        Double min = null;
+        for (TicketCategorie categorie : categories) {
+            if (categorie.getPrix() == null) {
+                continue;
+            }
+            if (min == null || categorie.getPrix() < min) {
+                min = categorie.getPrix();
+            }
+        }
+        return min != null ? min : 0.0;
     }
 }

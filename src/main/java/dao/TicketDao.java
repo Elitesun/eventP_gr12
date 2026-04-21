@@ -3,9 +3,11 @@ package dao;
 import entities.Ticket;
 import entities.Evenement;
 import entities.Client;
+import entities.TicketCategorie;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 
@@ -89,6 +91,20 @@ public class TicketDao {
     }
 
     /**
+     * Récupère les tickets disponibles d'une catégorie donnée (avec limite)
+     */
+    public List<Ticket> trouverTicketsDisponiblesParCategorie(TicketCategorie categorie, int limite) {
+        TypedQuery<Ticket> query = em.createQuery(
+            "SELECT t FROM Ticket t WHERE t.categorie = :categorie AND t.statut = :statut ORDER BY t.id",
+            Ticket.class
+        );
+        query.setParameter("categorie", categorie);
+        query.setParameter("statut", entities.Ticket.StatutTicket.DISPONIBLE);
+        query.setMaxResults(Math.max(1, limite));
+        return query.getResultList();
+    }
+
+    /**
      * Récupère les tickets d'un client
      */
     public List<Ticket> trouverParClient(Client client) {
@@ -127,14 +143,40 @@ public class TicketDao {
     }
 
     /**
+     * Compte les tickets disponibles d'une catégorie
+     */
+    public Long compterTicketsDisponiblesParCategorie(Long categorieId) {
+        TypedQuery<Long> query = em.createQuery(
+            "SELECT COUNT(t) FROM Ticket t WHERE t.categorie.id = :categorieId AND t.statut = :statut",
+            Long.class
+        );
+        query.setParameter("categorieId", categorieId);
+        query.setParameter("statut", entities.Ticket.StatutTicket.DISPONIBLE);
+        return query.getSingleResult();
+    }
+
+    /**
+     * Compte les tickets vendus d'une catégorie
+     */
+    public Long compterTicketsVendusParCategorie(Long categorieId) {
+        TypedQuery<Long> query = em.createQuery(
+            "SELECT COUNT(t) FROM Ticket t WHERE t.categorie.id = :categorieId AND t.statut = :statut",
+            Long.class
+        );
+        query.setParameter("categorieId", categorieId);
+        query.setParameter("statut", entities.Ticket.StatutTicket.VENDU);
+        return query.getSingleResult();
+    }
+
+    /**
      * Met à jour le statut de plusieurs tickets
      */
     public void mettreAJourStatut(List<Long> ticketIds, entities.Ticket.StatutTicket statut) {
-        em.createQuery(
+        Query query = em.createQuery(
             "UPDATE Ticket t SET t.statut = :statut WHERE t.id IN :ticketIds"
-        )
-        .setParameter("statut", statut)
-        .setParameter("ticketIds", ticketIds)
-        .executeUpdate();
+        );
+        query.setParameter("statut", statut);
+        query.setParameter("ticketIds", ticketIds);
+        query.executeUpdate();
     }
 }

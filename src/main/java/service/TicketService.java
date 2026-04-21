@@ -2,9 +2,11 @@ package service;
 
 import dao.TicketDao;
 import dao.EvenementDao;
+import dao.TicketCategorieDao;
 import entities.Ticket;
 import entities.Evenement;
 import entities.Client;
+import entities.TicketCategorie;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.transaction.Transactional;
@@ -22,6 +24,9 @@ public class TicketService {
 
     @EJB
     private EvenementDao evenementDao;
+
+    @EJB
+    private TicketCategorieDao ticketCategorieDao;
 
     /**
      * Trouve un ticket par son code QR
@@ -98,6 +103,16 @@ public void mettreAJourCompteursTickets(Long evenementId) {
         evt.setTicketsDisponibles(evt.getNombreTicketsTotal() - evt.getTicketsVendus());
         evt.setDateModification(new java.util.Date());
         evenementDao.mettreAJour(evt);
+
+        // Synchroniser les compteurs par catégorie de ticket
+        List<TicketCategorie> categories = ticketCategorieDao.trouverParEvenement(evt);
+        for (TicketCategorie categorie : categories) {
+            Long vendusCategorie = ticketDao.compterTicketsVendusParCategorie(categorie.getId());
+            Long disponiblesCategorie = ticketDao.compterTicketsDisponiblesParCategorie(categorie.getId());
+            categorie.setQuantiteVendue(vendusCategorie.intValue());
+            categorie.setQuantiteDisponible(disponiblesCategorie.intValue());
+            ticketCategorieDao.mettreAJour(categorie);
+        }
     }
 
     /**

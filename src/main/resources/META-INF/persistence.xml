@@ -6,10 +6,8 @@
     <properties>
       <property name="eclipselink.logging.level" value="FINE"/>
       <property name="eclipselink.logging.parameters" value="true"/>
-      <property name="eclipselink.logging.parameters" value="true"/>
       <property name="eclipselink.jpa.uppercase-column-names" value="false"/>
-      <property name="eclipselink.jpa.uppercase-column-names" value="false"/>
-      <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+      <property name="jakarta.persistence.schema-generation.database.action" value="none"/>
     </properties>
   </persistence-unit>
 </persistence>

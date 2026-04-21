@@ -4,6 +4,7 @@ import entities.Evenement;
 import entities.Organisateur;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
@@ -50,6 +51,38 @@ public class EvenementDao {
      */
     public Evenement trouverParId(Long id) {
         return em.find(Evenement.class, id);
+    }
+
+    /**
+     * Trouve un événement avec ses catégories chargées
+     */
+    public Evenement trouverParIdAvecCategories(Long id) {
+        try {
+            TypedQuery<Evenement> query = em.createQuery(
+                "SELECT DISTINCT e FROM Evenement e " +
+                "LEFT JOIN FETCH e.categories " +
+                "WHERE e.id = :id",
+                Evenement.class
+            );
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public Evenement trouverParIdEtOrganisateurId(Long evenementId, Long organisateurId) {
+        try {
+            TypedQuery<Evenement> query = em.createQuery(
+                "SELECT e FROM Evenement e WHERE e.id = :evenementId AND e.organisateur.id = :organisateurId",
+                Evenement.class
+            );
+            query.setParameter("evenementId", evenementId);
+            query.setParameter("organisateurId", organisateurId);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     /**

@@ -53,19 +53,19 @@ public class UserOrgaController implements Serializable {
     
     @PostConstruct
     public void init() {
-        System.out.println("=== INITIALISATION UserOrgaController ===");
+
         
         // SÉCURITÉ : Vérifier que l'utilisateur est ORGANISATEUR
         if (!securityHelper.isOrganisateur()) {
-            System.out.println("ERREUR: Utilisateur non autorisé - redirection");
+
             securityHelper.redirectToUnauthorized();
             return;
         }
         
-        System.out.println("Utilisateur autorisé - chargement des données");
+
         chargerMesUtilisateurs();
         preparerAjout();
-        System.out.println("=== INITIALISATION TERMINÉE ===");
+
     }
     
     /**
@@ -85,13 +85,11 @@ public class UserOrgaController implements Serializable {
             // Pour l'instant, simulation avec quelques utilisateurs
             simulerUtilisateurs();
             
-            System.out.println("=== MES UTILISATEURS CHARGÉS ===");
-            System.out.println("Organisateur ID: " + organisateurId);
-            System.out.println("Nombre d'utilisateurs: " + mesUtilisateurs.size());
+
             
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des utilisateurs: " + e.getMessage());
-            e.printStackTrace();
+
             mesUtilisateurs = new ArrayList<>();
         }
     }
@@ -129,8 +127,7 @@ public class UserOrgaController implements Serializable {
         roleSelectionne = "CLIENT";
         modeEdition = false;
         
-        System.out.println("=== PRÉPARATION AJOUT ===");
-        System.out.println("Formulaire réinitialisé pour ajout");
+
     }
     
     /**
@@ -162,8 +159,7 @@ public class UserOrgaController implements Serializable {
             
             modeEdition = true;
             
-            System.out.println("=== PRÉPARATION MODIFICATION ===");
-            System.out.println("Utilisateur: " + user.getPrenom() + " " + user.getNom());
+
             
         } catch (Exception e) {
             System.err.println("Erreur lors de la préparation de la modification: " + e.getMessage());
@@ -175,8 +171,7 @@ public class UserOrgaController implements Serializable {
      * Méthode appelée quand le rôle change dans le formulaire
      */
     public void onRoleChange() {
-        System.out.println("=== CHANGEMENT DE RÔLE ===");
-        System.out.println("Rôle sélectionné: " + roleSelectionne);
+
         
         if (roleSelectionne != null && !roleSelectionne.isEmpty()) {
             // Sauvegarder les données existantes
@@ -209,7 +204,7 @@ public class UserOrgaController implements Serializable {
             
             nouvelUtilisateur.setRole(Role.valueOf(roleSelectionne));
             
-            System.out.println("Nouvel objet créé: " + nouvelUtilisateur.getClass().getSimpleName());
+
         }
     }
     
@@ -229,7 +224,7 @@ public class UserOrgaController implements Serializable {
      */
     public void ajouterUtilisateur() {
         try {
-            System.out.println("=== DÉBUT AJOUT UTILISATEUR ===");
+
             
             if (nouvelUtilisateur == null || roleSelectionne == null || roleSelectionne.isEmpty()) {
                 org.primefaces.PrimeFaces.current().executeScript("Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires.', 'error');");
@@ -273,7 +268,7 @@ public class UserOrgaController implements Serializable {
             
         } catch (Exception e) {
             System.err.println("Erreur lors de l'ajout de l'utilisateur: " + e.getMessage());
-            e.printStackTrace();
+
             org.primefaces.PrimeFaces.current().executeScript("Swal.fire('Erreur système', 'Une erreur inattendue s\\'est produite.', 'error');");
         }
     }
@@ -318,7 +313,7 @@ public class UserOrgaController implements Serializable {
             
         } catch (Exception e) {
             System.err.println("Erreur lors de la modification de l'utilisateur: " + e.getMessage());
-            e.printStackTrace();
+
             org.primefaces.PrimeFaces.current().executeScript("Swal.fire('Erreur système', 'Une erreur inattendue s\\'est produite.', 'error');");
         }
     }
@@ -329,8 +324,7 @@ public class UserOrgaController implements Serializable {
     public void voirDetails(Personne user) {
         try {
             utilisateurSelectionne = user;
-            System.out.println("=== DÉTAILS UTILISATEUR ===");
-            System.out.println("Utilisateur: " + user.getPrenom() + " " + user.getNom());
+
         } catch (Exception e) {
             System.err.println("Erreur lors de l'affichage des détails: " + e.getMessage());
             org.primefaces.PrimeFaces.current().executeScript("Swal.fire('Erreur', 'Impossible d\\'afficher les détails.', 'error');");
@@ -369,7 +363,7 @@ public class UserOrgaController implements Serializable {
             
         } catch (Exception e) {
             System.err.println("Erreur lors de la suppression: " + e.getMessage());
-            e.printStackTrace();
+
             org.primefaces.PrimeFaces.current().executeScript("Swal.fire('Erreur système', 'Impossible de supprimer cet utilisateur.', 'error');");
         }
     }

@@ -2,9 +2,11 @@ package service;
 
 import dao.PersonneDao;
 import entities.Client;
+import entities.Evenement;
 import entities.Employe;
 import entities.Gerant;
 import entities.Organisateur;
+import entities.TicketCategorie;
 import entities.Personne.Role;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
@@ -19,30 +21,114 @@ import utils.PasswordUtils;
  * @author COMLAN
  */
 @Singleton
-// @Startup
+@Startup
 public class DataInitializer {
 
     @Inject
     private PersonneDao personneDao;
 
+    @Inject
+    private EvenementService evenementService;
+
     @PostConstruct
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void init() {
-        System.out.println("=== DÉMARRAGE INITIALISATION DONNÉES ===");
-        
-        // Créer le gérant par défaut
-        creerGerant();
-        
-        // Créer les utilisateurs de test
-        creerUtilisateursTest();
-        
-        // Créer les employés pour les organisateurs MORALE
-        creerEmployes();
-        
-        // Vérifier ce qui a été créé
-        verifierDonnees();
-        
-        System.out.println("=== FIN INITIALISATION DONNÉES ===");
+        try {
+            System.out.println("=== DÉMARRAGE INITIALISATION DONNÉES ===");
+
+            // Créer le gérant par défaut
+            creerGerant();
+
+            // Créer les utilisateurs de test
+            creerUtilisateursTest();
+
+            // Créer les employés pour les organisateurs MORALE
+            creerEmployes();
+
+            // Créer des événements de démonstration publiés
+            creerEvenementsDemo();
+
+            // Vérifier ce qui a été créé
+            verifierDonnees();
+
+            System.out.println("=== FIN INITIALISATION DONNÉES ===");
+        } catch (Exception e) {
+            // Ne jamais empêcher le déploiement en cas d'erreur de seed
+            System.err.println("[DataInitializer] Erreur d'initialisation non bloquante: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void creerEvenementsDemo() {
+        try {
+            if (!evenementService.trouverTousEvenements().isEmpty()) {
+                System.out.println("✓ Événements déjà présents, seed ignoré");
+                return;
+            }
+
+            java.util.List<Organisateur> organisateurs = (java.util.List<Organisateur>) (java.util.List<?>) personneDao.findByRole(Role.ORGANISATEUR);
+            if (organisateurs.isEmpty()) {
+                System.out.println("⚠ Aucun organisateur trouvé, impossible de créer des événements de démonstration");
+                return;
+            }
+
+            Organisateur orga = organisateurs.get(0);
+            creerEvenementDemo(
+                orga,
+                "Afro Future Summit",
+                "Conférences et networking autour de l'innovation africaine.",
+                "Palais des Congrès, Abidjan",
+                20,
+                "https://images.unsplash.com/photo-1511578314322-379afb476865"
+            );
+
+            creerEvenementDemo(
+                orga,
+                "Festival Urbain de Nuit",
+                "Musique live, performances et food court.",
+                "Parc Expo, Dakar",
+                35,
+                "https://images.unsplash.com/photo-1492684223066-81342ee5ff30"
+            );
+
+            System.out.println("✓ Événements de démonstration créés et publiés");
+        } catch (Exception e) {
+            System.err.println("[DataInitializer] Erreur création événements démo: " + e.getMessage());
+        }
+    }
+
+    private void creerEvenementDemo(Organisateur organisateur, String titre, String description, String lieu, int joursDansLeFutur, String imageUrl) {
+        Evenement event = new Evenement();
+        event.setTitre(titre);
+        event.setDescription(description);
+        event.setLieu(lieu);
+        event.setImageUrl(imageUrl);
+        event.setDateEvenement(new java.util.Date(System.currentTimeMillis() + (joursDansLeFutur * 24L * 60L * 60L * 1000L)));
+        event.setStatut(Evenement.StatutEvenement.BROUILLON);
+        event.setOrganisateur(organisateur);
+
+        java.util.List<TicketCategorie> categories = new java.util.ArrayList<>();
+
+        TicketCategorie standard = new TicketCategorie();
+        standard.setNom("Standard");
+        standard.setPrix(15000.0);
+        standard.setQuantiteTotale(120);
+        standard.setQuantiteVendue(0);
+        standard.setQuantiteDisponible(120);
+        categories.add(standard);
+
+        TicketCategorie vip = new TicketCategorie();
+        vip.setNom("VIP");
+        vip.setPrix(35000.0);
+        vip.setQuantiteTotale(35);
+        vip.setQuantiteVendue(0);
+        vip.setQuantiteDisponible(35);
+        categories.add(vip);
+
+        event.setCategories(categories);
+
+        Evenement cree = evenementService.creerEvenement(event);
+        evenementService.publierEvenement(cree.getId());
     }
     
     private void creerGerant() {

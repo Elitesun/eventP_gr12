@@ -75,12 +75,7 @@ public class DashboardHomeBean implements Serializable {
             // Activités récentes basées sur les vrais utilisateurs
             chargerActivitesRecentesReelles();
             
-            System.out.println("=== DASHBOARD GERANT CHARGÉ (DONNÉES RÉELLES) ===");
-            System.out.println("Total Utilisateurs: " + totalUtilisateurs);
-            System.out.println("Organisateurs: " + totalOrganisateurs);
-            System.out.println("Clients: " + totalClients);
-            System.out.println("Employés: " + totalEmployes);
-            System.out.println("Derniers utilisateurs: " + (derniersUtilisateurs != null ? derniersUtilisateurs.size() : 0));
+
             
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des données GERANT: " + e.getMessage());

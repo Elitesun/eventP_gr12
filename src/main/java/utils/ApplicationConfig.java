@@ -13,14 +13,16 @@ public class ApplicationConfig {
                 jakarta.servlet.http.HttpServletRequest request = (jakarta.servlet.http.HttpServletRequest) context
                         .getExternalContext().getRequest();
                 String contextPath = request.getContextPath();
-                // On force l'IP 10.214.140.247 pour que le téléphone puisse accéder
-                return "https://10.214.140.247:8181" + contextPath;
+                String scheme = request.getScheme();
+                String host = request.getServerName();
+                int port = request.getServerPort();
+                return scheme + "://" + host + ":" + port + contextPath;
             }
         } catch (Exception e) {
             // Fallback
         }
-        // Fallback avec le bon context path GlassFish fixe défini dans glassfish-web.xml
-        return "https://10.214.140.247:8181/eventProjectGlsi";
+        // Fallback local Docker
+        return "http://localhost:8080/eventProjectGlsi";
     }
 
     public static String getScanUrl(String codeQr) {

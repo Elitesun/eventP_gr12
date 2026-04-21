@@ -114,16 +114,10 @@ public class DashboardOrgaBean implements Serializable {
             // 4. Charger les événements récents
             chargerEvenementsRecents(evenements);
             
-            System.out.println("=== DASHBOARD ORGANISATEUR CHARGÉ (VRAIES DONNÉES) ===");
-            System.out.println("Organisateur ID: " + organisateurId);
-            System.out.println("Mes Événements: " + mesEvenements);
-            System.out.println("Billets Vendus: " + billetsVendus);
-            System.out.println("Mes Employés: " + mesEmployes);
-            System.out.println("Chiffre d'Affaires: " + chiffreAffaires);
+
             
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des données ORGANISATEUR: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
@@ -187,7 +181,7 @@ public class DashboardOrgaBean implements Serializable {
      * Formate un montant en FCFA
      */
     private String formatMontant(long montant) {
-        return String.format("%,d €", montant).replace(",", " ");
+        return String.format("%,d XOF", montant).replace(",", " ");
     }
     
     /**

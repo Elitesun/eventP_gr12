@@ -1,549 +1,616 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:f="jakarta.faces.core"
-      xmlns:ui="jakarta.faces.facelets">
-    
-    <h:head>
-        <title><ui:insert name="title">EventPlatform - Découvrez les meilleurs événements</ui:insert></title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        
-        <!-- Bootstrap 5 CDN -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        
-        <!-- Tailwind CSS CDN -->
-        <script src="https://cdn.tailwindcss.com"></script>
-        
-        <!-- Font Awesome 6 CDN -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-        
-        <!-- SweetAlert2 CDN -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        
-        <!-- PrimeIcons -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeicons@6.0.1/primeicons.css"/>
-        
-        <!-- Page-specific CSS -->
-        <ui:insert name="head"></ui:insert>
-        
-        <style>
-            /* EventPlatform Public Design System */
-            :root {
-                --eventplatform-blue: #0047FF;
-                --eventplatform-blue-dark: #0039CC;
-                --eventplatform-bg: #ffffff;
-                --eventplatform-light-bg: #f8f9fa;
-                --eventplatform-border: #e5e7eb;
-                --eventplatform-text: #1a1a1a;
-                --eventplatform-text-muted: #6c757d;
-            }
-            
-            /* Reset et Base */
-            * {
-                box-sizing: border-box;
-            }
-            
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-                background: var(--eventplatform-bg) !important;
-                margin: 0;
-                padding: 0;
-                line-height: 1.6;
-            }
-            
-            /* Header Public */
-            .public-header {
-                background: white;
-                border-bottom: 1px solid var(--eventplatform-border);
-                padding: 0;
-                position: sticky;
-                top: 0;
-                z-index: 1000;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            }
-            
-            .public-header .container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 1rem 0;
-            }
-            
-            .public-logo {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                text-decoration: none;
-                color: var(--eventplatform-text);
-            }
-            
-            .public-logo:hover {
-                color: var(--eventplatform-blue);
-                text-decoration: none;
-            }
-            
-            .public-logo i {
-                font-size: 32px;
-                color: var(--eventplatform-blue);
-            }
-            
-            .public-logo h1 {
-                font-size: 28px;
-                font-weight: 700;
-                margin: 0;
-                color: inherit;
-            }
-            
-            .public-nav {
-                display: flex;
-                align-items: center;
-                gap: 20px;
-            }
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="jakarta.faces.html"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:f="jakarta.faces.core"
+  xmlns:ui="jakarta.faces.facelets"
+>
+  <h:head>
+    <title>
+      <ui:insert name="title">GreenPulse Events - Découvrez les meilleurs événements</ui:insert>
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-            .nav-link {
-                color: var(--eventplatform-text) !important;
-                text-decoration: none !important;
-                font-weight: 500 !important;
-                font-size: 16px !important;
-                padding: 8px 16px !important;
-                border-radius: 6px !important;
-                transition: all 0.3s ease !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 6px !important;
-            }
+    <!-- Bootstrap 5 CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    ></script>
 
-            .nav-link:hover {
-                background: rgba(0, 71, 255, 0.1) !important;
-                color: var(--eventplatform-blue) !important;
-                text-decoration: none !important;
-            }
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-            .btn-login {
-                background: var(--eventplatform-blue) !important;
-                border: none !important;
-                color: white !important;
-                padding: 12px 24px !important;
-                border-radius: 8px !important;
-                font-size: 16px !important;
-                font-weight: 600 !important;
-                text-decoration: none !important;
-                transition: all 0.3s ease !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 8px !important;
-            }
-            
-            .btn-login:hover {
-                background: var(--eventplatform-blue-dark) !important;
-                color: white !important;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 71, 255, 0.3) !important;
-            }
-            
-            /* User Connected Styles */
-            .user-connected {
-                display: flex;
-                align-items: center;
-                gap: 20px;
-            }
-            
-            .user-name {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: var(--eventplatform-text);
-                font-weight: 600;
-                font-size: 16px;
-            }
-            
-            .user-name i {
-                color: var(--eventplatform-blue);
-            }
-            
-            .btn-logout {
-                background: #dc3545 !important;
-                border: none !important;
-                color: white !important;
-                padding: 8px 16px !important;
-                border-radius: 6px !important;
-                font-size: 14px !important;
-                font-weight: 600 !important;
-                text-decoration: none !important;
-                transition: all 0.3s ease !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 6px !important;
-            }
-            
-            .btn-logout:hover {
-                background: #c82333 !important;
-                color: white !important;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
-            }
-            
-            /* Hero Section - Style Eventbrite */
-            .hero-section {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 80px 0;
-                text-align: center;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .hero-section::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 71, 255, 0.8);
-                z-index: 1;
-            }
-            
-            .hero-section .container {
-                position: relative;
-                z-index: 2;
-            }
-            
-            .hero-title {
-                font-size: 3.5rem;
-                font-weight: 700;
-                margin-bottom: 1.5rem;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            }
-            
-            .hero-subtitle {
-                font-size: 1.25rem;
-                margin-bottom: 3rem;
-                opacity: 0.95;
-                max-width: 600px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            
-            /* Search Container - Style Eventbrite */
-            .search-container {
-                max-width: 600px;
-                margin: 0 auto;
-                position: relative;
-            }
-            
-            .search-form {
-                display: flex;
-                background: white;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            }
-            
-            .search-input {
-                flex: 1;
-                border: none !important;
-                padding: 20px 24px !important;
-                font-size: 18px !important;
-                background: transparent !important;
-                color: var(--eventplatform-text) !important;
-            }
-            
-            .search-input:focus {
-                outline: none !important;
-                box-shadow: none !important;
-            }
-            
-            .search-input::placeholder {
-                color: var(--eventplatform-text-muted);
-            }
-            
-            .search-btn {
-                background: var(--eventplatform-blue) !important;
-                border: none !important;
-                color: white !important;
-                padding: 20px 32px !important;
-                font-size: 18px !important;
-                font-weight: 600 !important;
-                transition: all 0.3s ease !important;
-                border-radius: 0 !important;
-            }
-            
-            .search-btn:hover {
-                background: var(--eventplatform-blue-dark) !important;
-            }
-            
-            /* Main Content */
-            .main-content {
-                padding: 80px 0;
-                background: var(--eventplatform-light-bg);
-            }
-            
-            .section-title {
-                font-size: 2.5rem;
-                font-weight: 700;
-                color: var(--eventplatform-text);
-                text-align: center;
-                margin-bottom: 3rem;
-            }
-            
-            /* Event Cards - Style Eventbrite */
-            .event-card {
-                background: white;
-                border: none;
-                border-radius: 12px;
-                overflow: hidden;
-                transition: all 0.3s ease;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                height: 100%;
-            }
-            
-            .event-card:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-            }
-            
-            .event-image {
-                height: 200px;
-                background: linear-gradient(135deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                color: white;
-            }
-            
-            .event-image i {
-                font-size: 48px;
-                opacity: 0.9;
-            }
-            
-            .event-date-badge {
-                position: absolute;
-                top: 16px;
-                right: 16px;
-                background: rgba(255,255,255,0.95);
-                color: var(--eventplatform-text);
-                padding: 8px 12px;
-                border-radius: 8px;
-                font-size: 12px;
-                font-weight: 700;
-                text-align: center;
-                line-height: 1.2;
-                min-width: 60px;
-            }
-            
-            .event-body {
-                padding: 24px;
-            }
-            
-            .event-title {
-                font-size: 1.25rem;
-                font-weight: 700;
-                color: var(--eventplatform-text);
-                margin-bottom: 12px;
-                line-height: 1.3;
-            }
-            
-            .event-location {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: var(--eventplatform-text-muted);
-                font-size: 14px;
-                margin-bottom: 8px;
-            }
-            
-            .event-price {
-                font-size: 18px;
-                font-weight: 700;
-                color: var(--eventplatform-blue);
-                margin-bottom: 12px;
-            }
-            
-            .event-description {
-                color: var(--eventplatform-text-muted);
-                font-size: 14px;
-                line-height: 1.5;
-                margin-bottom: 20px;
-            }
-            
-            .btn-event {
-                background: var(--eventplatform-blue) !important;
-                border: none !important;
-                color: white !important;
-                padding: 12px 24px !important;
-                border-radius: 8px !important;
-                font-size: 14px !important;
-                font-weight: 600 !important;
-                width: 100% !important;
-                transition: all 0.3s ease !important;
-            }
-            
-            .btn-event:hover {
-                background: var(--eventplatform-blue-dark) !important;
-                transform: translateY(-2px);
-            }
-            
-            /* CTA Section */
-            .cta-section {
-                background: white;
-                border: 1px solid var(--eventplatform-border);
-                border-radius: 16px;
-                padding: 3rem;
-                text-align: center;
-                margin-top: 4rem;
-            }
-            
-            .cta-title {
-                font-size: 2rem;
-                font-weight: 700;
-                color: var(--eventplatform-text);
-                margin-bottom: 1rem;
-            }
-            
-            .cta-subtitle {
-                color: var(--eventplatform-text-muted);
-                font-size: 1.1rem;
-                margin-bottom: 2rem;
-                max-width: 500px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            
-            .btn-cta {
-                background: var(--eventplatform-blue) !important;
-                border: none !important;
-                color: white !important;
-                padding: 16px 32px !important;
-                border-radius: 12px !important;
-                font-size: 18px !important;
-                font-weight: 600 !important;
-                text-decoration: none !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 12px !important;
-                transition: all 0.3s ease !important;
-            }
-            
-            .btn-cta:hover {
-                background: var(--eventplatform-blue-dark) !important;
-                color: white !important;
-                transform: translateY(-3px);
-                box-shadow: 0 8px 24px rgba(0, 71, 255, 0.3) !important;
-            }
-            
-            /* Footer */
-            .public-footer {
-                background: var(--eventplatform-text);
-                color: white;
-                padding: 2rem 0;
-                text-align: center;
-                margin-top: 4rem;
-            }
-            
-            .public-footer p {
-                margin: 0;
-                opacity: 0.8;
-            }
-            
-            /* Messages Globales */
-            .ui-growl {
-                z-index: 9999 !important;
-                top: 20px !important;
-                right: 20px !important;
-            }
-            
-            /* Responsive */
-            @media (max-width: 768px) {
-                .hero-title {
-                    font-size: 2.5rem;
-                }
-                
-                .hero-subtitle {
-                    font-size: 1.1rem;
-                }
-                
-                .search-form {
-                    flex-direction: column;
-                }
-                
-                .search-btn {
-                    border-radius: 0 0 12px 12px !important;
-                }
-                
-                .public-header .container {
-                    padding: 0.75rem 0;
-                }
-                
-                .public-logo h1 {
-                    font-size: 24px;
-                }
-            }
-        </style>
-    </h:head>
-    
-    <h:body>
-        <!-- Header Public -->
-        <header class="public-header">
-            <div class="container">
-                <h:link outcome="index" styleClass="public-logo">
-                    <i class="pi pi-calendar"></i>
-                    <h1>EventPlatform</h1>
-                </h:link>
-                
-                <nav class="public-nav">
-                    <h:form>
-                        <!-- Navigation principale -->
-                        <h:link value="Événements" outcome="events" styleClass="nav-link">
-                            <i class="pi pi-calendar"></i>
-                        </h:link>
+    <!-- Font Awesome 6 CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
-                        <!-- Si utilisateur NON connecté : Bouton Connexion -->
-                        <h:panelGroup rendered="#{empty authController.utilisateurConnecte}">
-                            <h:link value="Connexion" outcome="login" styleClass="btn-login">
-                                <i class="pi pi-sign-in"></i>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                            </h:link>
-                        </h:panelGroup>
+    <!-- PrimeIcons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/primeicons@6.0.1/primeicons.css"
+    />
 
-                        <!-- Si utilisateur connecté : Nom + Déconnexion -->
-                        <h:panelGroup rendered="#{not empty authController.utilisateurConnecte}" styleClass="user-connected">
-                            <span class="user-name">
-                                <i class="pi pi-user"></i>
-                                #{authController.utilisateurConnecte.prenom} #{authController.utilisateurConnecte.nom}
-                            </span>
-                            <p:commandLink
-                                value="Déconnexion"
-                                action="#{authController.seDeconnecter()}"
-                                styleClass="btn-logout"
-                                process="@this">
-                                <i class="pi pi-sign-out"></i>
-                            </p:commandLink>
-                        </h:panelGroup>
-                    </h:form>
-                </nav>
-            </div>
-        </header>
-        
-        <!-- Messages Globales -->
-        <p:growl id="growl" showDetail="true" life="4000" />
-        
-        <!-- Contenu Principal -->
-        <main>
-            <ui:insert name="content">
-                <p>Contenu par défaut</p>
-            </ui:insert>
-        </main>
-        
-        <!-- Footer -->
-        <footer class="public-footer">
-            <div class="container">
-                <p>© 2026 EventPlatform. Tous droits réservés.</p>
-            </div>
-        </footer>
-    </h:body>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;display=swap"
+    />
+
+    <!-- Page-specific CSS -->
+    <ui:insert name="head"></ui:insert>
+
+    <style>
+      /* GreenPulse Events Public Design System */
+      :root {
+        --greenpulse-teal: #0f766e;
+        --greenpulse-teal-dark: #115e59;
+        --greenpulse-bg: #ffffff;
+        --greenpulse-light-bg: #f8fafc;
+        --greenpulse-border: #e2e8f0;
+        --greenpulse-text: #0f172a;
+        --greenpulse-text-muted: #475569;
+      }
+
+      /* Reset et Base */
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Manrope", "Segoe UI", sans-serif !important;
+        background: var(--greenpulse-bg) !important;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        color: var(--greenpulse-text);
+      }
+
+      /* Bootstrap Overrides */
+      .btn-primary {
+        background-color: var(--greenpulse-teal) !important;
+        border-color: var(--greenpulse-teal) !important;
+        border-radius: 8px !important;
+        padding: 10px 20px !important;
+        font-weight: 600 !important;
+      }
+      .btn-primary:hover {
+        background-color: var(--greenpulse-teal-dark) !important;
+        border-color: var(--greenpulse-teal-dark) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+      }
+      .btn-outline-primary {
+        color: var(--greenpulse-teal) !important;
+        border-color: var(--greenpulse-teal) !important;
+        border-radius: 8px !important;
+        padding: 10px 20px !important;
+        font-weight: 600 !important;
+      }
+      .btn-outline-primary:hover {
+        background-color: var(--greenpulse-teal) !important;
+        border-color: var(--greenpulse-teal) !important;
+        color: white !important;
+      }
+      .text-primary {
+        color: var(--greenpulse-teal) !important;
+      }
+      .bg-primary {
+        background-color: var(--greenpulse-teal) !important;
+      }
+
+      /* Header Public */
+      .public-header {
+        background: white;
+        border-bottom: 1px solid var(--greenpulse-border);
+        padding: 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .public-header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+      }
+
+      .public-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--greenpulse-text);
+      }
+
+      .public-logo:hover {
+        color: var(--greenpulse-teal);
+        text-decoration: none;
+      }
+
+      .public-logo i {
+        font-size: 32px;
+        color: var(--greenpulse-teal);
+      }
+
+      .public-logo h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        color: inherit;
+      }
+
+      .public-nav {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .nav-link {
+        color: var(--greenpulse-text) !important;
+        text-decoration: none !important;
+        font-weight: 500 !important;
+        font-size: 16px !important;
+        padding: 8px 16px !important;
+        border-radius: 6px !important;
+        transition: all 0.3s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+      }
+
+      .nav-link:hover {
+        background: rgba(22, 163, 74, 0.12) !important;
+        color: var(--greenpulse-teal) !important;
+        text-decoration: none !important;
+      }
+
+      .btn-login {
+        background: var(--greenpulse-teal) !important;
+        border: none !important;
+        color: white !important;
+        padding: 12px 24px !important;
+        border-radius: 8px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        transition: all 0.3s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+
+      .btn-login:hover {
+        background: var(--greenpulse-teal-dark) !important;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
+      }
+
+      /* User Connected Styles */
+      .user-connected {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .user-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--greenpulse-text);
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .user-name i {
+        color: var(--greenpulse-teal);
+      }
+
+      .btn-logout {
+        background: #dc3545 !important;
+        border: none !important;
+        color: white !important;
+        padding: 8px 16px !important;
+        border-radius: 6px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        transition: all 0.3s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+      }
+
+      .btn-logout:hover {
+        background: #c82333 !important;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+      }
+
+      /* Hero Section - Style Eventbrite */
+      .hero-section {
+        background: linear-gradient(135deg, #1f2937 0%, #0f766e 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.45);
+        z-index: 1;
+      }
+
+      .hero-section .container {
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-subtitle {
+        font-size: 1.25rem;
+        margin-bottom: 3rem;
+        opacity: 0.95;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Search Container - Style Eventbrite */
+      .search-container {
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .search-form {
+        display: flex;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+
+      .search-input {
+        flex: 1;
+        border: none !important;
+        padding: 20px 24px !important;
+        font-size: 18px !important;
+        background: transparent !important;
+        color: var(--greenpulse-text) !important;
+      }
+
+      .search-input:focus {
+        outline: none !important;
+        box-shadow: none !important;
+      }
+
+      .search-input::placeholder {
+        color: var(--greenpulse-text-muted);
+      }
+
+      .search-btn {
+        background: var(--greenpulse-teal) !important;
+        border: none !important;
+        color: white !important;
+        padding: 20px 32px !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        border-radius: 0 !important;
+      }
+
+      .search-btn:hover {
+        background: var(--greenpulse-teal-dark) !important;
+      }
+
+      /* Main Content */
+      .main-content {
+        padding: 80px 0;
+        background: var(--greenpulse-light-bg);
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--greenpulse-text);
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      /* Event Cards - Style Eventbrite */
+      .event-card {
+        background: white;
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        height: 100%;
+      }
+
+      .event-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      }
+
+      .event-image {
+        height: 200px;
+        background: linear-gradient(
+          135deg,
+          var(--greenpulse-teal) 0%,
+          var(--greenpulse-teal-dark) 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        color: white;
+      }
+
+      .event-image i {
+        font-size: 48px;
+        opacity: 0.9;
+      }
+
+      .event-date-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--greenpulse-text);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+        line-height: 1.2;
+        min-width: 60px;
+      }
+
+      .event-body {
+        padding: 24px;
+      }
+
+      .event-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--greenpulse-text);
+        margin-bottom: 12px;
+        line-height: 1.3;
+      }
+
+      .event-location {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--greenpulse-text-muted);
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+
+      .event-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--greenpulse-teal);
+        margin-bottom: 12px;
+      }
+
+      .event-description {
+        color: var(--greenpulse-text-muted);
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+
+      .btn-event {
+        background: var(--greenpulse-teal) !important;
+        border: none !important;
+        color: white !important;
+        padding: 12px 24px !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+      }
+
+      .btn-event:hover {
+        background: var(--greenpulse-teal-dark) !important;
+        transform: translateY(-2px);
+      }
+
+      /* CTA Section */
+      .cta-section {
+        background: white;
+        border: 1px solid var(--greenpulse-border);
+        border-radius: 16px;
+        padding: 3rem;
+        text-align: center;
+        margin-top: 4rem;
+      }
+
+      .cta-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--greenpulse-text);
+        margin-bottom: 1rem;
+      }
+
+      .cta-subtitle {
+        color: var(--greenpulse-text-muted);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn-cta {
+        background: var(--greenpulse-teal) !important;
+        border: none !important;
+        color: white !important;
+        padding: 16px 32px !important;
+        border-radius: 12px !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        transition: all 0.3s ease !important;
+      }
+
+      .btn-cta:hover {
+        background: var(--greenpulse-teal-dark) !important;
+        color: white !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3) !important;
+      }
+
+      /* Footer */
+      .public-footer {
+        background: var(--greenpulse-text);
+        color: white;
+        padding: 2rem 0;
+        text-align: center;
+        margin-top: 4rem;
+      }
+
+      .public-footer p {
+        margin: 0;
+        opacity: 0.8;
+      }
+
+      /* Messages Globales */
+      .ui-growl {
+        z-index: 9999 !important;
+        top: 20px !important;
+        right: 20px !important;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.1rem;
+        }
+
+        .search-form {
+          flex-direction: column;
+        }
+
+        .search-btn {
+          border-radius: 0 0 12px 12px !important;
+        }
+
+        .public-header .container {
+          padding: 0.75rem 0;
+        }
+
+        .public-logo h1 {
+          font-size: 24px;
+        }
+      }
+    </style>
+  </h:head>
+
+  <h:body>
+    <!-- Header Public -->
+    <header class="public-header">
+      <div class="container">
+        <h:link outcome="index" styleClass="public-logo">
+          <i class="pi pi-compass"></i>
+          <h1>GreenPulse Events</h1>
+        </h:link>
+
+        <nav class="public-nav">
+          <h:form>
+            <!-- Navigation principale -->
+            <h:outputLink
+              value="#{request.contextPath}/events.xhtml"
+              styleClass="nav-link"
+            >
+              Événements
+              <i class="pi pi-calendar"></i>
+            </h:outputLink>
+
+            <!-- Si utilisateur NON connecté : Bouton Connexion -->
+            <h:panelGroup
+              rendered="#{empty authController.utilisateurConnecte}"
+            >
+              <h:link value="Connexion" outcome="login" styleClass="btn-login">
+                <i class="pi pi-sign-in"></i>
+              </h:link>
+            </h:panelGroup>
+
+            <!-- Si utilisateur connecté : Nom + Déconnexion -->
+            <h:panelGroup
+              rendered="#{not empty authController.utilisateurConnecte}"
+              styleClass="user-connected"
+            >
+              <span class="user-name">
+                <i class="pi pi-user"></i>
+                #{authController.utilisateurConnecte.prenom}
+                #{authController.utilisateurConnecte.nom}
+              </span>
+              <p:commandLink
+                value="Déconnexion"
+                action="#{authController.seDeconnecter()}"
+                styleClass="btn-logout"
+                process="@this"
+              >
+                <i class="pi pi-sign-out"></i>
+              </p:commandLink>
+            </h:panelGroup>
+          </h:form>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Messages Globales -->
+    <p:growl id="growl" showDetail="true" life="4000" />
+
+    <!-- Contenu Principal -->
+    <main>
+      <ui:insert name="content">
+        <p>Contenu par défaut</p>
+      </ui:insert>
+    </main>
+
+    <!-- Footer -->
+    <footer class="public-footer">
+      <div class="container">
+        <p>© 2026 GreenPulse Events. Tous droits réservés.</p>
+      </div>
+    </footer>
+  </h:body>
 </html>

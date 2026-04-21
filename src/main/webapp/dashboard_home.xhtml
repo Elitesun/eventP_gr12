@@ -31,15 +31,15 @@
             
             /* Variables CSS EventPlatform */
             :root {
-                --eventplatform-blue: #0047FF;
-                --eventplatform-blue-dark: #0039CC;
-                --eventplatform-success: #2e7d32;
-                --eventplatform-warning: #f57c00;
-                --eventplatform-purple: #7b1fa2;
-                --eventplatform-light: #f8f9fa;
-                --eventplatform-border: #f0f0f0;
-                --eventplatform-text: #1a1a1a;
-                --eventplatform-text-muted: #6c757d;
+                --greenpulse-teal: #0f766e;
+                --greenpulse-teal-dark: #115e59;
+                --greenpulse-success: #2e7d32;
+                --greenpulse-warning: #f57c00;
+                --greenpulse-purple: #7b1fa2;
+                --greenpulse-light: #f8f9fa;
+                --greenpulse-border: #f0f0f0;
+                --greenpulse-text: #1a1a1a;
+                --greenpulse-text-muted: #6c757d;
             }
             
             /* Harmonisation PrimeFaces + Bootstrap */
@@ -50,20 +50,20 @@
             }
             
             .ui-button.ui-button-primary {
-                background: var(--eventplatform-blue) !important;
-                border-color: var(--eventplatform-blue) !important;
+                background: var(--greenpulse-teal) !important;
+                border-color: var(--greenpulse-teal) !important;
             }
             
             .ui-button.ui-button-primary:hover {
-                background: var(--eventplatform-blue-dark) !important;
-                border-color: var(--eventplatform-blue-dark) !important;
+                background: var(--greenpulse-teal-dark) !important;
+                border-color: var(--greenpulse-teal-dark) !important;
                 transform: translateY(-1px);
             }
             
             /* KPI Cards Style EventPlatform */
             .kpi-card {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                border: 1px solid var(--eventplatform-border) !important;
+                border: 1px solid var(--greenpulse-border) !important;
                 position: relative;
                 overflow: hidden;
             }
@@ -75,15 +75,15 @@
                 left: 0;
                 right: 0;
                 height: 4px;
-                background: linear-gradient(90deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
+                background: linear-gradient(90deg, var(--greenpulse-teal) 0%, var(--greenpulse-teal-dark) 100%);
                 opacity: 0;
                 transition: opacity 0.3s ease;
             }
             
             .kpi-card:hover {
                 transform: translateY(-8px);
-                box-shadow: 0 20px 40px rgba(0, 71, 255, 0.15) !important;
-                border-color: var(--eventplatform-blue) !important;
+                box-shadow: 0 20px 40px rgba(15, 118, 110, 0.15) !important;
+                border-color: var(--greenpulse-teal) !important;
             }
             
             .kpi-card:hover::before {
@@ -103,19 +103,19 @@
             }
             
             .kpi-icon.blue {
-                background: linear-gradient(135deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
+                background: linear-gradient(135deg, var(--greenpulse-teal) 0%, var(--greenpulse-teal-dark) 100%);
             }
             
             .kpi-icon.green {
-                background: linear-gradient(135deg, var(--eventplatform-success) 0%, #1b5e20 100%);
+                background: linear-gradient(135deg, var(--greenpulse-success) 0%, #1b5e20 100%);
             }
             
             .kpi-icon.orange {
-                background: linear-gradient(135deg, var(--eventplatform-warning) 0%, #e65100 100%);
+                background: linear-gradient(135deg, var(--greenpulse-warning) 0%, #e65100 100%);
             }
             
             .kpi-icon.purple {
-                background: linear-gradient(135deg, var(--eventplatform-purple) 0%, #4a148c 100%);
+                background: linear-gradient(135deg, var(--greenpulse-purple) 0%, #4a148c 100%);
             }
             
             .kpi-badge {
@@ -127,7 +127,7 @@
             
             .kpi-badge.positive {
                 background: rgba(46, 125, 50, 0.1);
-                color: var(--eventplatform-success);
+                color: var(--greenpulse-success);
                 border: 1px solid rgba(46, 125, 50, 0.2);
             }
             
@@ -144,7 +144,7 @@
                 top: 0;
                 bottom: 0;
                 width: 2px;
-                background: linear-gradient(180deg, var(--eventplatform-blue) 0%, transparent 100%);
+                background: linear-gradient(180deg, var(--greenpulse-teal) 0%, transparent 100%);
             }
             
             .timeline-item-modern {
@@ -160,17 +160,17 @@
                 width: 12px;
                 height: 12px;
                 border-radius: 50%;
-                background: var(--eventplatform-blue);
+                background: var(--greenpulse-teal);
                 border: 3px solid white;
-                box-shadow: 0 0 0 3px rgba(0, 71, 255, 0.2);
+                box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
             }
             
             .timeline-content-modern {
                 background: white;
-                border: 1px solid var(--eventplatform-border);
+                border: 1px solid var(--greenpulse-border);
                 border-radius: 12px;
                 padding: 1rem 1.25rem;
-                border-left: 4px solid var(--eventplatform-blue);
+                border-left: 4px solid var(--greenpulse-teal);
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
                 transition: all 0.2s ease;
             }
@@ -185,7 +185,7 @@
                 background: white;
                 border-radius: 16px;
                 padding: 2rem;
-                border: 1px solid var(--eventplatform-border);
+                border: 1px solid var(--greenpulse-border);
                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
             }
             
@@ -198,7 +198,7 @@
                 background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
                 border-radius: 12px;
                 position: relative;
-                border: 1px solid var(--eventplatform-border);
+                border: 1px solid var(--greenpulse-border);
             }
             
             .chart-bar-group {
@@ -231,17 +231,17 @@
             }
             
             .chart-bar.orga {
-                background: linear-gradient(180deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
+                background: linear-gradient(180deg, var(--greenpulse-teal) 0%, var(--greenpulse-teal-dark) 100%);
             }
             
             .chart-bar.client {
-                background: linear-gradient(180deg, var(--eventplatform-success) 0%, #1b5e20 100%);
+                background: linear-gradient(180deg, var(--greenpulse-success) 0%, #1b5e20 100%);
             }
             
             .chart-label {
                 font-size: 13px;
                 font-weight: 600;
-                color: var(--eventplatform-text-muted);
+                color: var(--greenpulse-text-muted);
                 text-align: center;
             }
             
@@ -251,7 +251,7 @@
                 justify-content: center;
                 margin-top: 1.5rem;
                 padding-top: 1.5rem;
-                border-top: 1px solid var(--eventplatform-border);
+                border-top: 1px solid var(--greenpulse-border);
             }
             
             .legend-item {
@@ -260,7 +260,7 @@
                 gap: 8px;
                 font-size: 14px;
                 font-weight: 600;
-                color: var(--eventplatform-text);
+                color: var(--greenpulse-text);
             }
             
             .legend-color {
@@ -280,14 +280,14 @@
             
             .table-pro .ui-datatable-thead > tr > th {
                 background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%) !important;
-                color: var(--eventplatform-text-muted) !important;
+                color: var(--greenpulse-text-muted) !important;
                 font-weight: 700 !important;
                 font-size: 12px !important;
                 text-transform: uppercase !important;
                 letter-spacing: 0.5px !important;
                 padding: 1.25rem 1.5rem !important;
                 border: none !important;
-                border-bottom: 2px solid var(--eventplatform-border) !important;
+                border-bottom: 2px solid var(--greenpulse-border) !important;
             }
             
             .table-pro .ui-datatable-data > tr > td {
@@ -299,7 +299,7 @@
             }
             
             .table-pro .ui-datatable-data > tr:hover {
-                background: linear-gradient(90deg, rgba(0, 71, 255, 0.02) 0%, transparent 100%) !important;
+                background: linear-gradient(90deg, rgba(15, 118, 110, 0.02) 0%, transparent 100%) !important;
                 transform: translateX(4px);
                 transition: all 0.2s ease;
             }
@@ -313,14 +313,14 @@
                 width: 44px;
                 height: 44px;
                 border-radius: 12px;
-                background: linear-gradient(135deg, var(--eventplatform-blue) 0%, var(--eventplatform-blue-dark) 100%);
+                background: linear-gradient(135deg, var(--greenpulse-teal) 0%, var(--greenpulse-teal-dark) 100%);
                 color: white;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-weight: 700;
                 font-size: 16px;
-                box-shadow: 0 4px 12px rgba(0, 71, 255, 0.3);
+                box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
                 border: 2px solid white;
             }
             
@@ -337,13 +337,13 @@
             
             .status-badge.active {
                 background: rgba(46, 125, 50, 0.1);
-                color: var(--eventplatform-success);
+                color: var(--greenpulse-success);
                 border-color: rgba(46, 125, 50, 0.2);
             }
             
             .status-badge.inactive {
                 background: rgba(108, 117, 125, 0.1);
-                color: var(--eventplatform-text-muted);
+                color: var(--greenpulse-text-muted);
                 border-color: rgba(108, 117, 125, 0.2);
             }
             
@@ -447,7 +447,7 @@
             <!-- Quick Actions Row -->
             <div class="row g-4 mb-5">
                 <div class="col-12">
-                    <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, rgba(0, 71, 255, 0.05) 0%, rgba(0, 57, 204, 0.1) 100%);">
+                    <div class="card shadow-sm border-0 rounded-4" style="background: linear-gradient(135deg, rgba(15, 118, 110, 0.05) 0%, rgba(17, 94, 89, 0.1) 100%);">
                         <div class="card-body p-4">
                             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                                 <div class="d-flex align-items-center">
