@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS personne CASCADE;
 -- Table principale Personne
 CREATE TABLE personne (
     id BIGSERIAL PRIMARY KEY,
+    dtype VARCHAR(31) NOT NULL,
     nom VARCHAR(50) NOT NULL,
     prenom VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -23,10 +24,7 @@ CREATE TABLE personne (
 
 -- Table Client
 CREATE TABLE client (
-    id BIGINT PRIMARY KEY REFERENCES personne(id) ON DELETE CASCADE,
-    adresse TEXT,
-    date_naissance DATE,
-    genre VARCHAR(10) CHECK (genre IN ('HOMME', 'FEMME', 'AUTRE'))
+    id BIGINT PRIMARY KEY REFERENCES personne(id) ON DELETE CASCADE
 );
 
 -- Table Organisateur
@@ -44,28 +42,19 @@ CREATE TABLE organisateur (
 
 -- Table Employe
 CREATE TABLE employe (
-    id BIGSERIAL PRIMARY KEY,
-    nom VARCHAR(50) NOT NULL,
-    prenom VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    telephone VARCHAR(20),
-    poste VARCHAR(50),
-    salaire DECIMAL(10,2),
-    date_embauche DATE DEFAULT CURRENT_DATE,
-    actif BOOLEAN DEFAULT true,
-    organisateur_id BIGINT REFERENCES organisateur(id) ON DELETE SET NULL
+    id BIGINT PRIMARY KEY REFERENCES personne(id) ON DELETE CASCADE,
+    employeur_id BIGINT NOT NULL REFERENCES organisateur(id) ON DELETE CASCADE
 );
 
 -- Table Gerant
 CREATE TABLE gerant (
-    id BIGINT PRIMARY KEY REFERENCES personne(id) ON DELETE CASCADE,
-    numero_employe VARCHAR(20) UNIQUE,
-    departement VARCHAR(50)
+    personne_id BIGINT PRIMARY KEY REFERENCES personne(id) ON DELETE CASCADE
 );
 
 -- Index pour les performances
 CREATE INDEX idx_personne_email ON personne(email);
 CREATE INDEX idx_personne_role ON personne(role);
+CREATE INDEX idx_personne_dtype ON personne(dtype);
 
 -- Table Evenement
 CREATE TABLE evenement (

@@ -273,16 +273,16 @@ Exemple de payload:
 
 ```json
 {
-   "titre": "API Event Demo",
-   "description": "Event created via REST endpoint",
-   "dateEvenement": "2026-05-10T18:30:00",
-   "lieu": "Abidjan API Hall",
-   "standardPrix": 5000,
-   "standardQuantite": 20,
-   "vipPrix": 12000,
-   "vipQuantite": 10,
-   "email": "orga1@event.com",
-   "password": "password123"
+  "titre": "API Event Demo",
+  "description": "Event created via REST endpoint",
+  "dateEvenement": "2026-05-10T18:30:00",
+  "lieu": "Abidjan API Hall",
+  "standardPrix": 5000,
+  "standardQuantite": 20,
+  "vipPrix": 12000,
+  "vipQuantite": 10,
+  "email": "orga1@event.com",
+  "password": "password123"
 }
 ```
 

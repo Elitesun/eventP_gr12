@@ -9,10 +9,13 @@ import entities.TicketCategorie;
 import jakarta.ejb.EJB;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -25,6 +28,7 @@ import java.util.List;
 import service.EvenementService;
 import service.PersonneService;
 import service.TicketService;
+import com.mycompany.eventprojectglsi.resources.EventApiDTOs.*;
 
 @Path("events")
 @Produces(MediaType.APPLICATION_JSON)
@@ -160,16 +164,150 @@ public class EvenementApiResource {
         return Response.ok(ApiResponse.success("Ticket validé avec succès")).build();
     }
 
-    private Organisateur resolveOrganisateur(CreateEventRequest request) {
+    @PUT
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateEvent(@PathParam("id") Long eventId, UpdateEventRequest request) {
+        if (eventId == null || eventId <= 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ApiResponse.error("ID événement invalide"))
+                .build();
+        }
+
+        if (request == null) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ApiResponse.error("Le corps de requête est obligatoire"))
+                .build();
+        }
+
+        if (isBlank(request.titre) || isBlank(request.description) || isBlank(request.lieu) || isBlank(request.dateEvenement)) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ApiResponse.error("titre, description, lieu et dateEvenement sont obligatoires"))
+                .build();
+        }
+
+        if (request.standardPrix == null || request.standardPrix < 0
+            || request.standardQuantite == null || request.standardQuantite <= 0
+            || request.vipPrix == null || request.vipPrix < 0
+            || request.vipQuantite == null || request.vipQuantite <= 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ApiResponse.error("Les catégories Standard/VIP doivent avoir un prix >= 0 et une quantité > 0"))
+                .build();
+        }
+
+        Organisateur organisateur = resolveOrganisateur(request);
+        if (organisateur == null) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(ApiResponse.error("Authentification organisateur requise"))
+                .build();
+        }
+
+        Date dateEvenement;
+        try {
+            dateEvenement = parseDate(request.dateEvenement);
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ApiResponse.error(e.getMessage()))
+                .build();
+        }
+
+        Evenement evenement = new Evenement();
+        evenement.setId(eventId);
+        evenement.setTitre(request.titre.trim());
+        evenement.setDescription(request.description.trim());
+        evenement.setLieu(request.lieu.trim());
+        evenement.setDateEvenement(dateEvenement);
+        evenement.setImageUrl(request.imageBase64);
+        evenement.setOrganisateur(organisateur);
+
+        try {
+            Evenement updated = evenementService.mettreAJourEvenement(organisateur.getId(), evenement);
+            UpdateEventResponse response = new UpdateEventResponse();
+            response.id = updated.getId();
+            response.titre = updated.getTitre();
+            response.statut = updated.getStatut() != null ? updated.getStatut().name() : null;
+            response.prixTicket = updated.getPrixTicket();
+            response.nombreTicketsTotal = updated.getNombreTicketsTotal();
+            response.message = "Événement mis à jour avec succès";
+            return Response.ok(response).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT)
+                .entity(ApiResponse.error(e.getMessage()))
+                .build();
+        }
+    }
+
+    @DELETE
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteEvent(@PathParam("id") Long eventId,
+                                @QueryParam("email") String email,
+                                @QueryParam("password") String password,
+                                DeleteEventRequest request) {
+        if (eventId == null || eventId <= 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ApiResponse.error("ID événement invalide"))
+                .build();
+        }
+
+        String requestEmail = request != null && request.email != null ? request.email : email;
+        String requestPassword = request != null && request.password != null ? request.password : password;
+
+        Organisateur organisateur = null;
+        if (authController != null && authController.getUtilisateurConnecte() instanceof Organisateur) {
+            organisateur = (Organisateur) authController.getUtilisateurConnecte();
+        } else if (requestEmail != null && requestPassword != null) {
+            Personne personne = personneService.authentifier(requestEmail, requestPassword);
+            if (personne instanceof Organisateur) {
+                organisateur = (Organisateur) personne;
+            }
+        }
+
+        if (organisateur == null) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(ApiResponse.error("Authentification organisateur requise"))
+                .build();
+        }
+
+        try {
+            evenementService.supprimerEvenement(organisateur.getId(), eventId);
+            EventApiDTOs.DeleteEventResponse response = new EventApiDTOs.DeleteEventResponse();
+            response.success = true;
+            response.message = "Événement supprimé avec succès";
+            response.eventId = eventId;
+            return Response.ok(response).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT)
+                .entity(ApiResponse.error(e.getMessage()))
+                .build();
+        }
+    }
+
+    private Organisateur resolveOrganisateur(Object request) {
         if (authController != null && authController.getUtilisateurConnecte() instanceof Organisateur) {
             return (Organisateur) authController.getUtilisateurConnecte();
         }
 
-        if (request.email == null || request.password == null) {
+        String email = null;
+        String password = null;
+        
+        if (request instanceof CreateEventRequest) {
+            CreateEventRequest req = (CreateEventRequest) request;
+            email = req.email;
+            password = req.password;
+        } else if (request instanceof UpdateEventRequest) {
+            UpdateEventRequest req = (UpdateEventRequest) request;
+            email = req.email;
+            password = req.password;
+        }
+
+        if (email == null || password == null) {
             return null;
         }
 
-        Personne personne = personneService.authentifier(request.email, request.password);
+        Personne personne = personneService.authentifier(email, password);
         if (personne instanceof Organisateur) {
             return (Organisateur) personne;
         }
@@ -205,57 +343,5 @@ public class EvenementApiResource {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
-    }
-
-    public static class CreateEventRequest {
-        public String titre;
-        public String description;
-        public String dateEvenement;
-        public String lieu;
-        public String imageBase64;
-        public Double standardPrix;
-        public Integer standardQuantite;
-        public Double vipPrix;
-        public Integer vipQuantite;
-        public String email;
-        public String password;
-    }
-
-    public static class CreateEventResponse {
-        public Long id;
-        public String titre;
-        public String statut;
-        public Double prixTicket;
-        public Integer nombreTicketsTotal;
-        public String message;
-    }
-
-    public static class ScanEventResponse {
-        public String codeQr;
-        public String statutTicket;
-        public boolean peutEtreValide;
-        public Long evenementId;
-        public String evenementTitre;
-        public String clientNom;
-        public String categorie;
-    }
-
-    public static class ApiResponse {
-        public boolean success;
-        public String message;
-
-        public static ApiResponse success(String message) {
-            ApiResponse r = new ApiResponse();
-            r.success = true;
-            r.message = message;
-            return r;
-        }
-
-        public static ApiResponse error(String message) {
-            ApiResponse r = new ApiResponse();
-            r.success = false;
-            r.message = message;
-            return r;
-        }
     }
 }

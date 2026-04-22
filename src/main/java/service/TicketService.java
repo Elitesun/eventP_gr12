@@ -36,6 +36,16 @@ public class TicketService {
     }
 
     /**
+     * Trouve un ticket par son identifiant.
+     */
+    public Ticket trouverTicketParId(Long ticketId) {
+        if (ticketId == null || ticketId <= 0) {
+            return null;
+        }
+        return ticketDao.trouverParId(ticketId);
+    }
+
+    /**
      * Valide un ticket (le marque comme utilisé)
      */
     public boolean validerTicket(String codeQr) {
@@ -69,6 +79,31 @@ public class TicketService {
      */
     public List<Ticket> trouverTicketsDisponibles(Evenement evenement) {
         return ticketDao.trouverTicketsDisponibles(evenement);
+    }
+
+    /**
+     * Supprime un ticket quand il n'est pas encore vendu.
+     */
+    public void supprimerTicket(Long ticketId) {
+        if (ticketId == null || ticketId <= 0) {
+            throw new IllegalArgumentException("ID ticket invalide");
+        }
+
+        Ticket ticket = ticketDao.trouverParId(ticketId);
+        if (ticket == null) {
+            throw new IllegalArgumentException("Ticket introuvable");
+        }
+
+        if (ticket.getStatut() == Ticket.StatutTicket.VENDU || ticket.getStatut() == Ticket.StatutTicket.UTILISE) {
+            throw new IllegalStateException("Impossible de supprimer un ticket vendu ou utilisé");
+        }
+
+        Long evenementId = ticket.getEvenement() != null ? ticket.getEvenement().getId() : null;
+        ticketDao.supprimer(ticket);
+
+        if (evenementId != null) {
+            mettreAJourCompteursTickets(evenementId);
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ import entities.Achat;
 import entities.Client;
 import entities.Evenement;
 import entities.Personne;
+import entities.Organisateur;
 import entities.Ticket;
 import entities.TicketCategorie;
 import jakarta.ejb.EJB;
@@ -12,8 +13,10 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -21,6 +24,9 @@ import service.AchatService;
 import service.EvenementService;
 import service.PersonneService;
 import service.TicketService;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * API JSON minimale pour scan QR et achat de tickets.
@@ -147,8 +153,63 @@ public class TicketApiResource {
             response.quantity = achat.getNombreTickets();
             response.total = achat.getMontantTotal();
             response.categorie = categorie != null ? categorie.getNom() : "STANDARD";
+            response.ticketCodes = achat.getTickets() != null
+                ? achat.getTickets().stream().map(Ticket::getCodeQr).collect(Collectors.toList())
+                : Collections.emptyList();
+            response.ticketIds = achat.getTickets() != null
+                ? achat.getTickets().stream().map(Ticket::getId).collect(Collectors.toList())
+                : Collections.emptyList();
             response.message = "Achat confirmé";
             return Response.ok(response).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT)
+                .entity(ApiResponse.error(e.getMessage()))
+                .build();
+        }
+    }
+
+    @DELETE
+    @Path("{ticketIdentifier}")
+    public Response deleteTicket(@PathParam("ticketIdentifier") String ticketIdentifier,
+                                 @QueryParam("email") String email,
+                                 @QueryParam("password") String password,
+                                 DeleteTicketRequest request) {
+        if (isBlank(ticketIdentifier)) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ApiResponse.error("Identifiant ticket requis"))
+                .build();
+        }
+
+        Organisateur organisateur = resolveOrganisateurForDelete(request, email, password);
+        if (organisateur == null) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(ApiResponse.error("Authentification organisateur requise"))
+                .build();
+        }
+
+        Ticket ticket = resolveTicket(ticketIdentifier.trim());
+        if (ticket == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                .entity(ApiResponse.error("Ticket introuvable"))
+                .build();
+        }
+
+        try {
+            ticketService.supprimerTicket(ticket.getId());
+            DeleteTicketResponse response = new DeleteTicketResponse();
+            response.success = true;
+            response.message = "Ticket supprimé avec succès";
+            response.ticketId = ticket.getId();
+            response.codeQr = ticket.getCodeQr();
+            return Response.ok(response).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ApiResponse.error(e.getMessage()))
+                .build();
+        } catch (IllegalStateException e) {
+            return Response.status(Response.Status.CONFLICT)
+                .entity(ApiResponse.error(e.getMessage()))
+                .build();
         } catch (Exception e) {
             return Response.status(Response.Status.CONFLICT)
                 .entity(ApiResponse.error(e.getMessage()))
@@ -172,6 +233,41 @@ public class TicketApiResource {
         return null;
     }
 
+    private Organisateur resolveOrganisateurForDelete(DeleteTicketRequest request, String email, String password) {
+        if (authController != null && authController.getUtilisateurConnecte() instanceof Organisateur) {
+            return (Organisateur) authController.getUtilisateurConnecte();
+        }
+
+        String requestEmail = request != null && request.email != null ? request.email : email;
+        String requestPassword = request != null && request.password != null ? request.password : password;
+        if (isBlank(requestEmail) || isBlank(requestPassword)) {
+            return null;
+        }
+
+        Personne personne = personneService.authentifier(requestEmail, requestPassword);
+        if (personne instanceof Organisateur) {
+            return (Organisateur) personne;
+        }
+        return null;
+    }
+
+    private Ticket resolveTicket(String ticketIdentifier) {
+        try {
+            Long ticketId = Long.valueOf(ticketIdentifier);
+            Ticket ticket = ticketService.trouverTicketParId(ticketId);
+            if (ticket != null) {
+                return ticket;
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
+        return ticketService.trouverTicketParCodeQr(ticketIdentifier);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
     public static class BuyTicketRequest {
         public Long eventId;
         public Long categorieId;
@@ -186,7 +282,21 @@ public class TicketApiResource {
         public Integer quantity;
         public Double total;
         public String categorie;
+        public List<String> ticketCodes;
+        public List<Long> ticketIds;
         public String message;
+    }
+
+    public static class DeleteTicketRequest {
+        public String email;
+        public String password;
+    }
+
+    public static class DeleteTicketResponse {
+        public boolean success;
+        public String message;
+        public Long ticketId;
+        public String codeQr;
     }
 
     public static class TicketScanResult {
