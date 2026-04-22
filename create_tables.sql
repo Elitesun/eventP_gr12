@@ -63,7 +63,7 @@ CREATE TABLE evenement (
     description TEXT NOT NULL,
     date_evenement TIMESTAMP NOT NULL,
     lieu VARCHAR(300) NOT NULL,
-    image_url VARCHAR(1024),
+    image_url TEXT,
     prix_ticket DECIMAL(10,2) NOT NULL CHECK (prix_ticket >= 0),
     nombre_tickets_total INTEGER NOT NULL CHECK (nombre_tickets_total > 0),
     tickets_vendus INTEGER DEFAULT 0 CHECK (tickets_vendus >= 0),

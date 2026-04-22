@@ -23,8 +23,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import service.EvenementService;
 import service.PersonneService;
 import service.TicketService;
@@ -61,13 +63,18 @@ public class EvenementApiResource {
                 .build();
         }
 
-        if (request.standardPrix == null || request.standardPrix < 0
-            || request.standardQuantite == null || request.standardQuantite <= 0
-            || request.vipPrix == null || request.vipPrix < 0
-            || request.vipQuantite == null || request.vipQuantite <= 0) {
+        if (request.categories == null || request.categories.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(ApiResponse.error("Les catégories Standard/VIP doivent avoir un prix >= 0 et une quantité > 0"))
+                .entity(ApiResponse.error("Au moins une catégorie de ticket est requise"))
                 .build();
+        }
+
+        for (CategoryRequest cat : request.categories) {
+            if (isBlank(cat.nom) || cat.prix == null || cat.prix < 0 || cat.quantite == null || cat.quantite <= 0) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(ApiResponse.error("Chaque catégorie doit avoir un nom, un prix >= 0 et une quantité > 0"))
+                    .build();
+            }
         }
 
         Organisateur organisateur = resolveOrganisateur(request);
@@ -96,8 +103,9 @@ public class EvenementApiResource {
         evenement.setOrganisateur(organisateur);
 
         List<TicketCategorie> categories = new ArrayList<>();
-        categories.add(buildCategory("Standard", request.standardPrix, request.standardQuantite));
-        categories.add(buildCategory("VIP", request.vipPrix, request.vipQuantite));
+        for (CategoryRequest cat : request.categories) {
+            categories.add(buildCategory(cat.nom, cat.prix, cat.quantite));
+        }
         evenement.setCategories(categories);
 
         try {
@@ -108,6 +116,9 @@ public class EvenementApiResource {
             response.statut = created.getStatut() != null ? created.getStatut().name() : null;
             response.prixTicket = created.getPrixTicket();
             response.nombreTicketsTotal = created.getNombreTicketsTotal();
+            response.categoryIds = created.getCategories() != null
+                ? created.getCategories().stream().map(TicketCategorie::getId).collect(Collectors.toList())
+                : Collections.emptyList();
             response.message = "Événement créé avec succès";
             return Response.status(Response.Status.CREATED).entity(response).build();
         } catch (Exception e) {
@@ -187,13 +198,18 @@ public class EvenementApiResource {
                 .build();
         }
 
-        if (request.standardPrix == null || request.standardPrix < 0
-            || request.standardQuantite == null || request.standardQuantite <= 0
-            || request.vipPrix == null || request.vipPrix < 0
-            || request.vipQuantite == null || request.vipQuantite <= 0) {
+        if (request.categories == null || request.categories.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(ApiResponse.error("Les catégories Standard/VIP doivent avoir un prix >= 0 et une quantité > 0"))
+                .entity(ApiResponse.error("Au moins une catégorie de ticket est requise"))
                 .build();
+        }
+
+        for (CategoryRequest cat : request.categories) {
+            if (isBlank(cat.nom) || cat.prix == null || cat.prix < 0 || cat.quantite == null || cat.quantite <= 0) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(ApiResponse.error("Chaque catégorie doit avoir un nom, un prix >= 0 et une quantité > 0"))
+                    .build();
+            }
         }
 
         Organisateur organisateur = resolveOrganisateur(request);
@@ -222,8 +238,9 @@ public class EvenementApiResource {
         evenement.setOrganisateur(organisateur);
 
         List<TicketCategorie> categories = new ArrayList<>();
-        categories.add(buildCategory("Standard", request.standardPrix, request.standardQuantite));
-        categories.add(buildCategory("VIP", request.vipPrix, request.vipQuantite));
+        for (CategoryRequest cat : request.categories) {
+            categories.add(buildCategory(cat.nom, cat.prix, cat.quantite));
+        }
         evenement.setCategories(categories);
 
         try {
@@ -234,6 +251,9 @@ public class EvenementApiResource {
             response.statut = updated.getStatut() != null ? updated.getStatut().name() : null;
             response.prixTicket = updated.getPrixTicket();
             response.nombreTicketsTotal = updated.getNombreTicketsTotal();
+            response.categoryIds = updated.getCategories() != null
+                ? updated.getCategories().stream().map(TicketCategorie::getId).collect(Collectors.toList())
+                : Collections.emptyList();
             response.message = "Événement mis à jour avec succès";
             return Response.ok(response).build();
         } catch (Exception e) {

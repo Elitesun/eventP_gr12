@@ -57,7 +57,7 @@ private PersonneService personneService;
     @PostConstruct
     public void init() {
         nouvelEvenement = new Evenement();
-        initialiserCategoriesFixes();
+        initialiserCategories();
         chargerEvenements();
     }
 
@@ -84,7 +84,7 @@ private PersonneService personneService;
         modeCreation = true;
         nouvelEvenement = new Evenement();
         nouvelEvenement.setDateCreation(new Date());
-        initialiserCategoriesFixes();
+        initialiserCategories();
         message = null;
     }
 
@@ -134,20 +134,21 @@ private PersonneService personneService;
         nouvelEvenement.setStatut(evenementSelectionne.getStatut());
         nouvelEvenement.setOrganisateur(evenementSelectionne.getOrganisateur());
 
-        initialiserCategoriesFixes();
+        categoriesSaisie = new ArrayList<>();
         if (evenementSelectionne.getCategories() != null && !evenementSelectionne.getCategories().isEmpty()) {
             for (TicketCategorie categorie : evenementSelectionne.getCategories()) {
                 if (categorie == null || categorie.getNom() == null) {
                     continue;
                 }
-                String nom = categorie.getNom().trim();
-                if (!"Standard".equalsIgnoreCase(nom) && !"VIP".equalsIgnoreCase(nom)) {
-                    continue;
-                }
-                TicketCategorie cible = "VIP".equalsIgnoreCase(nom) ? categoriesSaisie.get(1) : categoriesSaisie.get(0);
+                TicketCategorie cible = new TicketCategorie();
+                cible.setNom(categorie.getNom().trim());
                 cible.setPrix(categorie.getPrix());
                 cible.setQuantiteTotale(categorie.getQuantiteTotale());
+                categoriesSaisie.add(cible);
             }
+        }
+        if (categoriesSaisie.isEmpty()) {
+            ajouterCategorie();
         }
 
         message = null;
@@ -181,9 +182,9 @@ private PersonneService personneService;
             }
 
             List<TicketCategorie> categoriesValides = extraireCategoriesValides();
-            if (categoriesValides.size() != 2) {
+            if (categoriesValides.isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Les catégories Standard et VIP sont obligatoires avec un prix et une quantité valides."));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins une catégorie est obligatoire avec un nom, un prix et une quantité valides."));
                 return;
             }
 
@@ -340,20 +341,21 @@ private PersonneService personneService;
         }
     }
 
-    private void initialiserCategoriesFixes() {
+    private void initialiserCategories() {
         categoriesSaisie = new ArrayList<>();
+        ajouterCategorie();
+    }
 
-        TicketCategorie standard = new TicketCategorie();
-        standard.setNom("Standard");
-        standard.setPrix(0.0);
-        standard.setQuantiteTotale(1);
-        categoriesSaisie.add(standard);
+    public void ajouterCategorie() {
+        TicketCategorie nouvelle = new TicketCategorie();
+        nouvelle.setNom("");
+        nouvelle.setPrix(0.0);
+        nouvelle.setQuantiteTotale(1);
+        categoriesSaisie.add(nouvelle);
+    }
 
-        TicketCategorie vip = new TicketCategorie();
-        vip.setNom("VIP");
-        vip.setPrix(0.0);
-        vip.setQuantiteTotale(1);
-        categoriesSaisie.add(vip);
+    public void supprimerCategorie(TicketCategorie categorie) {
+        categoriesSaisie.remove(categorie);
     }
 
     private List<TicketCategorie> extraireCategoriesValides() {
@@ -377,24 +379,12 @@ private PersonneService personneService;
             }
 
             TicketCategorie copie = new TicketCategorie();
-            String nomNormalise = categorie.getNom().trim();
-            if (!"Standard".equalsIgnoreCase(nomNormalise) && !"VIP".equalsIgnoreCase(nomNormalise)) {
-                continue;
-            }
-            copie.setNom("VIP".equalsIgnoreCase(nomNormalise) ? "VIP" : "Standard");
+            copie.setNom(categorie.getNom().trim());
             copie.setPrix(categorie.getPrix());
             copie.setQuantiteTotale(categorie.getQuantiteTotale());
             copie.setQuantiteVendue(0);
             copie.setQuantiteDisponible(categorie.getQuantiteTotale());
             valides.add(copie);
-        }
-
-        if (valides.size() == 2) {
-            boolean hasStandard = valides.stream().anyMatch(c -> "Standard".equals(c.getNom()));
-            boolean hasVip = valides.stream().anyMatch(c -> "VIP".equals(c.getNom()));
-            if (!(hasStandard && hasVip)) {
-                valides.clear();
-            }
         }
 
         return valides;

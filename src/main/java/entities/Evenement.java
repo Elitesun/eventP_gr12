@@ -53,7 +53,7 @@ public class Evenement {
 
     @Size(max = 1000000, message = "L'image est trop volumineuse")
     @Lob
-    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
     @NotNull(message = "Le prix est obligatoire")

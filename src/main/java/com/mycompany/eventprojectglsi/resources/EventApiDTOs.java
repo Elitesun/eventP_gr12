@@ -1,5 +1,7 @@
 package com.mycompany.eventprojectglsi.resources;
 
+import java.util.List;
+
 /**
  * Data Transfer Objects for Event API
  * Centralized DTOs to avoid duplication and improve maintainability
@@ -13,10 +15,7 @@ public class EventApiDTOs {
         public String dateEvenement;
         public String lieu;
         public String imageBase64;
-        public Double standardPrix;
-        public Integer standardQuantite;
-        public Double vipPrix;
-        public Integer vipQuantite;
+        public List<CategoryRequest> categories;
         public String email;
         public String password;
     }
@@ -28,10 +27,7 @@ public class EventApiDTOs {
         public String dateEvenement;
         public String lieu;
         public String imageBase64;
-        public Double standardPrix;
-        public Integer standardQuantite;
-        public Double vipPrix;
-        public Integer vipQuantite;
+        public List<CategoryRequest> categories;
         public String email;
         public String password;
     }
@@ -41,6 +37,12 @@ public class EventApiDTOs {
         public String password;
     }
 
+    public static class CategoryRequest {
+        public String nom;
+        public Double prix;
+        public Integer quantite;
+    }
+
     // ==================== Response DTOs ====================
     public static class CreateEventResponse {
         public Long id;
@@ -48,6 +50,7 @@ public class EventApiDTOs {
         public String statut;
         public Double prixTicket;
         public Integer nombreTicketsTotal;
+        public List<Long> categoryIds;
         public String message;
     }
 
@@ -57,6 +60,7 @@ public class EventApiDTOs {
         public String statut;
         public Double prixTicket;
         public Integer nombreTicketsTotal;
+        public List<Long> categoryIds;
         public String message;
     }
 
