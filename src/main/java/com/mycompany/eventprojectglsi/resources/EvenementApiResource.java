@@ -221,6 +221,11 @@ public class EvenementApiResource {
         evenement.setImageUrl(request.imageBase64);
         evenement.setOrganisateur(organisateur);
 
+        List<TicketCategorie> categories = new ArrayList<>();
+        categories.add(buildCategory("Standard", request.standardPrix, request.standardQuantite));
+        categories.add(buildCategory("VIP", request.vipPrix, request.vipQuantite));
+        evenement.setCategories(categories);
+
         try {
             Evenement updated = evenementService.mettreAJourEvenement(organisateur.getId(), evenement);
             UpdateEventResponse response = new UpdateEventResponse();
@@ -240,20 +245,18 @@ public class EvenementApiResource {
 
     @DELETE
     @Path("{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteEvent(@PathParam("id") Long eventId,
                                 @QueryParam("email") String email,
-                                @QueryParam("password") String password,
-                                DeleteEventRequest request) {
+                                @QueryParam("password") String password) {
         if (eventId == null || eventId <= 0) {
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(ApiResponse.error("ID événement invalide"))
                 .build();
         }
 
-        String requestEmail = request != null && request.email != null ? request.email : email;
-        String requestPassword = request != null && request.password != null ? request.password : password;
+        String requestEmail = email;
+        String requestPassword = password;
 
         Organisateur organisateur = null;
         if (authController != null && authController.getUtilisateurConnecte() instanceof Organisateur) {

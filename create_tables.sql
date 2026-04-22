@@ -131,6 +131,6 @@ CREATE INDEX idx_achat_categorie ON achat(categorie_id);
 -- Contraintes de cohérence
 ALTER TABLE evenement ADD CONSTRAINT chk_tickets_coherence CHECK (tickets_disponibles = nombre_tickets_total - tickets_vendus);
 ALTER TABLE ticket ADD CONSTRAINT chk_date_achat_coherence CHECK (
-    (statut = 'VENDU' AND date_achat IS NOT NULL) OR
-    (statut != 'VENDU' AND date_achat IS NULL)
+    (statut IN ('VENDU', 'UTILISE') AND date_achat IS NOT NULL) OR
+    (statut NOT IN ('VENDU', 'UTILISE') AND date_achat IS NULL)
 );
