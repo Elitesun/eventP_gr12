@@ -1,0 +1,59 @@
+{
+  "info": {
+    "_postman_id": "563915e7-f396-4242-990a-7ae3c2916e64",
+    "name": "New Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46217985",
+    "_collection_link": "https://go.postman.co/collection/46217985-563915e7-f396-4242-990a-7ae3c2916e64?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "edit events",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "buy tickes",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Scan tickets",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/eventProjectGlsi/resources/tickets/scan/TICKET-16-108-b9ff3098-4067-4fa3-96a6-9de90b3c5c0e/validate",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "eventProjectGlsi",
+            "resources",
+            "tickets",
+            "scan",
+            "TICKET-16-108-b9ff3098-4067-4fa3-96a6-9de90b3c5c0e",
+            "validate"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create events",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ]
+}

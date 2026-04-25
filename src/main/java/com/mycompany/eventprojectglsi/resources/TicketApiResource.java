@@ -171,9 +171,9 @@ public class TicketApiResource {
     @DELETE
     @Path("{ticketIdentifier}")
     public Response deleteTicket(@PathParam("ticketIdentifier") String ticketIdentifier,
-                                 @QueryParam("email") String email,
-                                 @QueryParam("password") String password,
-                                 DeleteTicketRequest request) {
+            @QueryParam("email") String email,
+            @QueryParam("password") String password,
+            DeleteTicketRequest request) {
         if (isBlank(ticketIdentifier)) {
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(ApiResponse.error("Identifiant ticket requis"))
